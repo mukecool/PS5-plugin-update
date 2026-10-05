@@ -21,12 +21,13 @@
   header .sub{margin:0 0 22px;color:var(--muted);font-size:14px}
 
   .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:22px}
-  #addForm{display:flex;gap:10px;flex-wrap:wrap}
   #repoInput{
-    flex:1 1 320px;min-width:0;padding:10px 12px;border-radius:8px;
-    border:1px solid var(--border);background:#0d1117;color:var(--text);font-size:14px;outline:none;
+    width:100%;min-height:64px;resize:vertical;padding:10px 12px;border-radius:8px;
+    border:1px solid var(--border);background:#0d1117;color:var(--text);
+    font-size:14px;outline:none;font-family:inherit;line-height:1.5;
   }
   #repoInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(47,129,247,.2)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
   button{
     padding:10px 16px;border-radius:8px;border:1px solid var(--border);
     background:var(--panel2);color:var(--text);font-size:14px;cursor:pointer;transition:.15s;
@@ -36,22 +37,37 @@
   button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
   button.primary:hover{background:#1f6feb}
   button.danger:hover{background:#3d1418;border-color:var(--red);color:#ff7b72}
+  button.small{font-size:12px;padding:6px 11px;border-radius:7px}
 
   .options{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:13px;color:var(--muted)}
   .options label{display:flex;align-items:center;gap:6px;cursor:pointer}
   .options input[type=password]{
     padding:6px 9px;border-radius:6px;border:1px solid var(--border);
-    background:#0d1117;color:var(--text);width:160px;font-size:13px;
+    background:#0d1117;color:var(--text);width:170px;font-size:13px;
   }
   .options select{
     padding:6px 8px;border-radius:6px;border:1px solid var(--border);
     background:#0d1117;color:var(--text);font-size:13px;
   }
 
+  .sync-box{
+    margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;
+  }
+  .sync-box input{
+    flex:1 1 220px;min-width:0;padding:7px 10px;border-radius:6px;
+    border:1px solid var(--border);background:#0d1117;color:var(--text);font-size:13px;
+  }
+  .sync-box input:focus{outline:none;border-color:var(--accent)}
+  #syncStatus{font-size:12px;color:var(--muted);white-space:nowrap}
+  #syncStatus.ok{color:var(--green)}
+  #syncStatus.err{color:var(--red)}
+  #syncStatus.busy{color:var(--yellow)}
+
   .toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;
            padding-top:14px;border-top:1px dashed var(--border);font-size:13px;color:var(--muted)}
 
-  #list{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+  #list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
 
   .card{
     position:relative;background:var(--panel);border:1px solid var(--border);
@@ -75,6 +91,7 @@
   .badge{font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
   .badge.ok{background:rgba(63,185,80,.12);color:var(--green);border-color:rgba(63,185,80,.3)}
   .badge.new{background:rgba(63,185,80,.2);color:#56d364;border-color:var(--green);font-weight:700}
+  .badge.warn{background:rgba(210,153,34,.15);color:var(--yellow);border-color:rgba(210,153,34,.4)}
   .badge.error{background:rgba(248,81,73,.12);color:#ff7b72;border-color:rgba(248,81,73,.3);
                max-width:190px;overflow:hidden;text-overflow:ellipsis}
   .badge.loading{background:rgba(210,153,34,.12);color:var(--yellow);border-color:rgba(210,153,34,.3)}
@@ -85,8 +102,27 @@
     word-break:break-all;
   }
   .card.is-new .version{color:#56d364}
+  .rel-name{font-size:12px;color:var(--muted);margin-bottom:4px;word-break:break-all}
   .meta{font-size:12px;color:var(--muted)}
   .meta.hint{color:var(--yellow);margin-top:2px}
+
+  details.assets{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:#0d1117}
+  details.assets>summary{
+    cursor:pointer;padding:7px 11px;font-size:12px;color:var(--muted);
+    list-style:none;user-select:none;
+  }
+  details.assets>summary::-webkit-details-marker{display:none}
+  details.assets>summary::before{content:"▸ ";display:inline-block;transition:.15s}
+  details.assets[open]>summary::before{transform:rotate(90deg)}
+  details.assets ul{list-style:none;margin:0;padding:0 11px 9px;max-height:220px;overflow:auto}
+  details.assets li{
+    display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+    font-size:12px;padding:3px 0;border-top:1px dashed rgba(48,54,61,.7);
+  }
+  details.assets li:first-child{border-top:none}
+  details.assets a{color:var(--accent);text-decoration:none;word-break:break-all}
+  details.assets a:hover{text-decoration:underline}
+  details.assets .sz{color:var(--muted);white-space:nowrap;font-size:11px}
 
   .card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
   .card-actions button,.card-actions a{
@@ -106,7 +142,7 @@
     position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
     background:var(--panel2);border:1px solid var(--border);color:var(--text);
     padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;
-    transition:.25s;pointer-events:none;z-index:99;
+    transition:.25s;pointer-events:none;z-index:99;max-width:80vw;
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .tip{font-size:12px;color:var(--muted);margin-top:10px}
@@ -117,13 +153,16 @@
 <div class="app">
   <header>
     <h1>🔔 GitHub Release 更新监控</h1>
-    <p class="sub">添加你关注的仓库，自动检测是否发布了新版本（数据保存在浏览器本地）</p>
+    <p class="sub">添加你关注的 PS5 插件仓库，自动检测新版本；数据可同步到你的私有 Gist，多设备共用</p>
   </header>
 
   <section class="panel">
     <form id="addForm" autocomplete="off">
-      <input id="repoInput" placeholder="owner/repo  或  https://github.com/owner/repo">
-      <button type="submit" class="primary">＋ 添加仓库</button>
+      <textarea id="repoInput"
+        placeholder="每行一个仓库，支持批量粘贴，例如：&#10;EchoStretch/kstuff&#10;GoldHEN/GoldHEN&#10;https://github.com/owner/repo"></textarea>
+      <div class="row">
+        <button type="submit" class="primary">＋ 添加仓库</button>
+      </div>
     </form>
 
     <div class="options">
@@ -138,19 +177,29 @@
         </select>
       </label>
       <label>Token
-        <input type="password" id="tokenInput" placeholder="可选 ghp_xxx">
+        <input type="password" id="tokenInput" placeholder="ghp_xxx（需勾 gist）">
       </label>
+    </div>
+
+    <div class="sync-box">
+      <input id="gistInput" placeholder="Gist ID（首次点右侧「创建」自动生成）">
+      <button type="button" id="gistCreate" class="small">创建 / 绑定</button>
+      <button type="button" id="gistPull" class="small">☁ 拉取</button>
+      <button type="button" id="gistPush" class="small">⬆ 推送</button>
+      <span id="syncStatus"></span>
     </div>
 
     <div class="toolbar">
       <button id="refreshAll">🔄 全部刷新</button>
+      <button id="markAllRead">✓ 全部标记已读</button>
       <span id="rateInfo"></span>
       <span id="lastRefresh"></span>
     </div>
+
     <div class="tip">
-      未填 Token 时 GitHub 限制 <code>60 次/小时</code>（按 IP）；填入
-      <a href="https://github.com/settings/tokens" target="_blank" rel="noopener" style="color:var(--accent)">Personal Access Token</a>
-      （只需 <code>public_repo</code> 或无权限的 classic token）可提升到 5000 次/小时。Token 只存在你自己的浏览器里。
+      Token 需勾选 <code>gist</code> 权限（classic token 即可），它同时用于 GitHub API 和云同步。
+      填入 Token 后 API 额度从 <code>60 次/小时</code> 提升到 <code>5000 次/小时</code>，
+      云同步也依赖它。Token 与 Gist ID 只保存在各设备浏览器本地，不会进入代码。
     </div>
   </section>
 
@@ -164,16 +213,19 @@
   'use strict';
 
   const STORAGE_KEY = 'gh-release-watcher-v1';
+  const GIST_FILE   = 'gh-release-watcher.json';
 
   const state = {
-    repos: [],            // {fullName, lastSeenTag, latest, error, lastCheck, checking, isNew}
+    repos: [],
     token: '',
+    gistId: '',
+    updatedAt: 0,          // 本地数据最后修改时间，用于云同步冲突判断
     includePrerelease: false,
     autoRefreshMinutes: 0,
     rate: null
   };
 
-  /* ---------------- 持久化 ---------------- */
+  /* ---------------- 本地持久化 ---------------- */
 
   function load(){
     try{
@@ -184,32 +236,46 @@
         fullName: r.fullName,
         lastSeenTag: r.lastSeenTag ?? null,
         latest: r.latest || null,
-        error: r.error || null,
+        error: null,
         lastCheck: r.lastCheck || null,
         isNew: false,
+        isRollback: false,
         checking: false
       }));
       state.token = d.token || '';
+      state.gistId = d.gistId || '';
+      state.updatedAt = d.updatedAt || 0;
       state.includePrerelease = !!d.includePrerelease;
       state.autoRefreshMinutes = d.autoRefreshMinutes || 0;
     }catch(e){ console.warn('读取本地数据失败', e); }
   }
 
-  function save(){
+  /**
+   * 保存到 localStorage。
+   * opts.touch = false  -> 不更新 updatedAt（用于云端覆盖本地）
+   * opts.push  = false  -> 不触发云端推送
+   */
+  function save(opts){
+    opts = opts || {};
+    if(opts.touch !== false) state.updatedAt = Date.now();
+
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         repos: state.repos.map(r => ({
           fullName: r.fullName,
           lastSeenTag: r.lastSeenTag,
           latest: r.latest,
-          error: r.error,
           lastCheck: r.lastCheck
         })),
         token: state.token,
+        gistId: state.gistId,
+        updatedAt: state.updatedAt,
         includePrerelease: state.includePrerelease,
         autoRefreshMinutes: state.autoRefreshMinutes
       }));
     }catch(e){ console.warn('保存失败', e); }
+
+    if(opts.push !== false) schedulePush();
   }
 
   /* ---------------- 工具函数 ---------------- */
@@ -222,7 +288,8 @@
 
   function parseRepo(input){
     if(!input) return null;
-    const s = input.trim();
+    const s = String(input).trim();
+    if(!s) return null;
     let m = s.match(/github\.com[/:]([^/\s?#]+)\/([^/\s?#]+)/i);
     if(m) return (m[1] + '/' + m[2]).replace(/\.git$/i,'');
     m = s.match(/^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/);
@@ -232,7 +299,6 @@
 
   function relTime(ts){
     const diff = Date.now() - ts;
-    if(diff < 0) return '刚刚';
     if(diff < 60000) return '刚刚';
     const m = Math.floor(diff / 60000);
     if(m < 60) return m + ' 分钟前';
@@ -248,21 +314,66 @@
     return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
+  function fmtSize(n){
+    if(typeof n !== 'number' || isNaN(n)) return '';
+    if(n < 1024) return n + ' B';
+    const u = ['KB','MB','GB'];
+    let i = -1;
+    do { n /= 1024; i++; } while(n >= 1024 && i < u.length - 1);
+    return n.toFixed(n >= 100 ? 0 : 1) + ' ' + u[i];
+  }
+
+  function nowTime(){
+    return new Date().toLocaleTimeString('zh-CN', {hour12:false});
+  }
+
+  /* ---- 版本号比较 ---- */
+
+  function parseVersion(tag){
+    const s = String(tag == null ? '' : tag).trim().replace(/^[vV]\s*/, '');
+    const m = s.match(/^(\d+(?:\.\d+)*)(.*)$/);
+    if(!m) return null;
+    return {
+      nums: m[1].split('.').map(Number),
+      pre: m[2].replace(/^[-_.+\s]+/, '').toLowerCase()
+    };
+  }
+
+  function compareVersions(a, b){
+    if(a === b) return 0;
+    const A = parseVersion(a), B = parseVersion(b);
+    if(!A || !B) return String(a) > String(b) ? 1 : -1;
+    const n = Math.max(A.nums.length, B.nums.length);
+    for(let i = 0; i < n; i++){
+      const x = A.nums[i] || 0, y = B.nums[i] || 0;
+      if(x !== y) return x > y ? 1 : -1;
+    }
+    if(A.pre === B.pre) return 0;
+    if(!A.pre) return 1;
+    if(!B.pre) return -1;
+    return A.pre > B.pre ? 1 : -1;
+  }
+
   let toastTimer = null;
   function toast(msg){
     const el = document.getElementById('toast');
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
   /* ---------------- GitHub API ---------------- */
 
-  async function ghFetch(path){
-    const headers = { 'Accept': 'application/vnd.github+json' };
+  async function ghFetch(path, init){
+    const headers = Object.assign(
+      { 'Accept': 'application/vnd.github+json' },
+      (init && init.headers) || {}
+    );
     if(state.token) headers['Authorization'] = 'Bearer ' + state.token.trim();
-    const res = await fetch('https://api.github.com' + path, { headers });
+
+    const res = await fetch('https://api.github.com' + path,
+      Object.assign({}, init, { headers }));
 
     const rem = res.headers.get('x-ratelimit-remaining');
     if(rem !== null){
@@ -286,6 +397,56 @@
     return 'API 访问被拒绝（可能是额度用尽）';
   }
 
+  function isRateLimited(res){ return res.status === 403 || res.status === 429; }
+
+  function pseudoReleaseFromTag(repo, tagName){
+    return {
+      tag_name: tagName,
+      name: tagName,
+      html_url: `https://github.com/${repo.fullName}/releases/tag/${encodeURIComponent(tagName)}`,
+      published_at: null,
+      prerelease: false,
+      assets: []
+    };
+  }
+
+  function normalizeRelease(release){
+    return {
+      tag: release.tag_name,
+      name: release.name || release.tag_name,
+      url: release.html_url || '#',
+      publishedAt: release.published_at || null,
+      prerelease: !!release.prerelease,
+      assets: (release.assets || []).map(a => ({
+        name: a.name, size: a.size, url: a.browser_download_url
+      }))
+    };
+  }
+
+  async function fetchLatestRelease(repo){
+    if(state.includePrerelease){
+      const res = await ghFetch(`/repos/${repo.fullName}/releases?per_page=1`);
+      if(isRateLimited(res)) throw new Error(rateMsg(res));
+      if(res.status === 404) throw new Error('仓库不存在或不可访问');
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const arr = await res.json();
+      if(arr.length) return arr[0];
+    }else{
+      const res = await ghFetch(`/repos/${repo.fullName}/releases/latest`);
+      if(isRateLimited(res)) throw new Error(rateMsg(res));
+      if(res.ok) return await res.json();
+      if(res.status !== 404) throw new Error('HTTP ' + res.status);
+    }
+
+    const rt = await ghFetch(`/repos/${repo.fullName}/tags?per_page=1`);
+    if(isRateLimited(rt)) throw new Error(rateMsg(rt));
+    if(rt.status === 404) throw new Error('仓库不存在或不可访问');
+    if(!rt.ok) throw new Error('HTTP ' + rt.status);
+    const tags = await rt.json();
+    if(tags.length) return pseudoReleaseFromTag(repo, tags[0].name);
+    return null;
+  }
+
   async function checkRepo(repo){
     if(repo.checking) return;
     repo.checking = true;
@@ -293,72 +454,28 @@
     render();
 
     try{
-      let release = null;
-
-      if(state.includePrerelease){
-        const res = await ghFetch(`/repos/${repo.fullName}/releases?per_page=1`);
-        if(res.status === 404) throw new Error('仓库不存在或不可访问');
-        if(res.status === 403 || res.status === 429) throw new Error(rateMsg(res));
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        const arr = await res.json();
-        release = arr[0] || null;
-      }else{
-        const res = await ghFetch(`/repos/${repo.fullName}/releases/latest`);
-        if(res.status === 404){
-          // 可能是仓库不存在，也可能只是没有正式 Release —— 用仓库接口区分
-          const r2 = await ghFetch(`/repos/${repo.fullName}`);
-          if(r2.status === 404) throw new Error('仓库不存在或不可访问');
-          if(r2.status === 403 || r2.status === 429) throw new Error(rateMsg(r2));
-          if(!r2.ok) throw new Error('HTTP ' + r2.status);
-          release = null; // 仓库存在但暂无 release
-        }else if(res.status === 403 || res.status === 429){
-          throw new Error(rateMsg(res));
-        }else if(!res.ok){
-          throw new Error('HTTP ' + res.status);
-        }else{
-          release = await res.json();
-        }
-      }
-
-      // 没有 Release 时退回到 tags
-      if(!release){
-        const rt = await ghFetch(`/repos/${repo.fullName}/tags?per_page=1`);
-        if(rt.ok){
-          const tags = await rt.json();
-          if(tags.length){
-            release = {
-              tag_name: tags[0].name,
-              name: tags[0].name,
-              html_url: `https://github.com/${repo.fullName}/releases/tag/${encodeURIComponent(tags[0].name)}`,
-              published_at: null,
-              prerelease: false
-            };
-          }
-        }
-      }
-
+      const release = await fetchLatestRelease(repo);
       repo.lastCheck = Date.now();
 
       if(release){
-        const tag = release.tag_name;
-        repo.latest = {
-          tag: tag,
-          name: release.name || tag,
-          url: release.html_url || `https://github.com/${repo.fullName}/releases`,
-          publishedAt: release.published_at || null,
-          prerelease: !!release.prerelease
-        };
+        repo.latest = normalizeRelease(release);
+        const tag = repo.latest.tag;
 
         if(repo.lastSeenTag == null){
-          // 第一次检查：记录当前版本，不算“新版本”
           repo.lastSeenTag = tag;
           repo.isNew = false;
+          repo.isRollback = false;
         }else{
-          repo.isNew = (repo.lastSeenTag !== tag);
+          const c = compareVersions(tag, repo.lastSeenTag);
+          repo.isNew = c > 0;
+          repo.isRollback = c < 0;
+          if(c !== 0) repo.lastSeenTag = tag;
         }
         repo.error = null;
       }else{
         repo.latest = null;
+        repo.isNew = false;
+        repo.isRollback = false;
         repo.error = '没有找到 Release 或 Tag';
       }
     }catch(e){
@@ -372,26 +489,200 @@
     }
   }
 
+  let refreshing = false;
   async function refreshAll(){
-    if(!state.repos.length) return;
+    if(refreshing || !state.repos.length) return;
+    refreshing = true;
     const btn = document.getElementById('refreshAll');
     btn.disabled = true;
     btn.textContent = '⏳ 刷新中…';
     await Promise.all(state.repos.map(r => checkRepo(r)));
+    refreshing = false;
     btn.disabled = false;
     btn.textContent = '🔄 全部刷新';
     document.getElementById('lastRefresh').textContent =
-      '最后刷新：' + new Date().toLocaleTimeString('zh-CN');
+      '最后刷新：' + nowTime();
     save();
     updateTitle();
+  }
+
+  /* ---------------- 云同步（私有 Gist） ---------------- */
+
+  const sync = {
+    busy: false,
+    pushTimer: null,
+    lastAt: null
+  };
+
+  function syncReady(){
+    return !!(state.gistId && state.token);
+  }
+
+  function setSyncStatus(kind, text){
+    const el = document.getElementById('syncStatus');
+    el.className = kind ? kind : '';
+    el.textContent = text || '';
+  }
+
+  function cloudPayload(){
+    return JSON.stringify({
+      version: 1,
+      updatedAt: state.updatedAt || 0,
+      savedAt: new Date().toISOString(),
+      repos: state.repos.map(r => ({
+        fullName: r.fullName,
+        lastSeenTag: r.lastSeenTag,
+        latest: r.latest,
+        lastCheck: r.lastCheck
+      }))
+    }, null, 2);
+  }
+
+  // 从远端数据重建本地仓库列表（覆盖式）
+  function applyRemote(remote){
+    state.repos = (remote.repos || []).map(r => ({
+      fullName: r.fullName,
+      lastSeenTag: r.lastSeenTag ?? null,
+      latest: r.latest || null,
+      error: null,
+      lastCheck: r.lastCheck || null,
+      isNew: false,
+      isRollback: false,
+      checking: false
+    }));
+    state.updatedAt = remote.updatedAt || 0;
+  }
+
+  async function cloudPull(silent){
+    if(!syncReady()){
+      if(!silent) toast('请先填写 Token 并创建/绑定 Gist');
+      return { ok:false, error:'未配置同步' };
+    }
+    if(sync.busy) return { ok:false, error:'正在同步中' };
+    sync.busy = true;
+    setSyncStatus('busy', '⏳ 拉取中…');
+
+    try{
+      const res = await ghFetch('/gists/' + state.gistId);
+      if(res.status === 404) throw new Error('Gist 不存在或 Token 无权限');
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+
+      const data = await res.json();
+      const file = data.files && data.files[GIST_FILE];
+      if(!file || !file.content){
+        setSyncStatus('ok', '✓ 云端为空，已就绪');
+        sync.lastAt = Date.now();
+        return { ok:true, applied:false };
+      }
+
+      let remote;
+      try{ remote = JSON.parse(file.content); }
+      catch(e){ throw new Error('云端数据格式异常'); }
+
+      const remoteAt = remote.updatedAt || 0;
+      if(remoteAt > (state.updatedAt || 0)){
+        applyRemote(remote);
+        save({ touch:false, push:false });
+        render();
+        updateTitle();
+        setSyncStatus('ok', '✓ 已从云端更新 ' + nowTime());
+        sync.lastAt = Date.now();
+        return { ok:true, applied:true };
+      }
+
+      setSyncStatus('ok', '✓ 本地已是最新 ' + nowTime());
+      sync.lastAt = Date.now();
+      return { ok:true, applied:false };
+    }catch(e){
+      setSyncStatus('err', '⚠ ' + (e.message || '拉取失败'));
+      if(!silent) toast('拉取失败：' + (e.message || ''));
+      return { ok:false, error: e.message || '拉取失败' };
+    }finally{
+      sync.busy = false;
+    }
+  }
+
+  async function cloudPush(silent){
+    if(!syncReady()){
+      if(!silent) toast('请先填写 Token 并创建/绑定 Gist');
+      return { ok:false, error:'未配置同步' };
+    }
+    if(sync.busy) return { ok:false, error:'正在同步中' };
+    sync.busy = true;
+    setSyncStatus('busy', '⏳ 推送中…');
+
+    try{
+      const res = await ghFetch('/gists/' + state.gistId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          files: { [GIST_FILE]: { content: cloudPayload() } }
+        })
+      });
+      if(res.status === 404) throw new Error('Gist 不存在或 Token 无权限');
+      if(res.status === 401) throw new Error('Token 无效或缺少 gist 权限');
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+
+      setSyncStatus('ok', '✓ 已同步 ' + nowTime());
+      sync.lastAt = Date.now();
+      return { ok:true };
+    }catch(e){
+      setSyncStatus('err', '⚠ ' + (e.message || '推送失败'));
+      if(!silent) toast('推送失败：' + (e.message || ''));
+      return { ok:false, error: e.message || '推送失败' };
+    }finally{
+      sync.busy = false;
+    }
+  }
+
+  // 本地改动后延迟推送，避免频繁请求
+  function schedulePush(){
+    if(!syncReady()) return;
+    clearTimeout(sync.pushTimer);
+    setSyncStatus('busy', '⏳ 待同步…');
+    sync.pushTimer = setTimeout(() => cloudPush(true), 2500);
+  }
+
+  async function createGist(){
+    if(!state.token){
+      toast('请先填写带 gist 权限的 Token');
+      return;
+    }
+    if(state.gistId && !confirm('已绑定 Gist，重新创建会生成一个新的，确定继续？')) return;
+
+    setSyncStatus('busy', '⏳ 创建中…');
+    try{
+      const res = await ghFetch('/gists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: 'GitHub Release Watcher 同步数据',
+          public: false,
+          files: { [GIST_FILE]: { content: cloudPayload() } }
+        })
+      });
+      if(res.status === 401) throw new Error('Token 无效或缺少 gist 权限');
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+
+      const data = await res.json();
+      state.gistId = data.id;
+      document.getElementById('gistInput').value = data.id;
+      save({ touch:false });
+      setSyncStatus('ok', '✓ 已创建 ' + data.id.slice(0,8) + '…');
+      toast('私有 Gist 已创建，其他设备填这个 ID + 同一个 Token 即可同步');
+    }catch(e){
+      setSyncStatus('err', '⚠ ' + (e.message || '创建失败'));
+      toast('创建失败：' + (e.message || ''));
+    }
   }
 
   /* ---------------- 渲染 ---------------- */
 
   function renderRate(){
     const el = document.getElementById('rateInfo');
-    if(state.rate && state.rate.remaining != null && !isNaN(state.rate.remaining)){
+    if(state.rate && !isNaN(state.rate.remaining)){
       el.textContent = `API 剩余额度：${state.rate.remaining}/${state.rate.limit}`;
+      el.style.color = state.rate.remaining < 10 ? 'var(--red)' : '';
     }else{
       el.textContent = '';
     }
@@ -407,6 +698,8 @@
       badge = `<span class="badge error" title="${esc(repo.error)}">⚠ ${esc(repo.error)}</span>`;
     }else if(repo.isNew){
       badge = '<span class="badge new">🎉 有新版本</span>';
+    }else if(repo.isRollback){
+      badge = '<span class="badge warn">↩ 版本回退</span>';
     }else if(latest){
       badge = '<span class="badge ok">✓ 已是最新</span>';
     }else{
@@ -414,6 +707,8 @@
     }
 
     const version = latest ? esc(latest.tag) : '—';
+    const relName = (latest && latest.name && latest.name !== latest.tag)
+      ? `<div class="rel-name">${esc(latest.name)}</div>` : '';
 
     const metaParts = [];
     if(latest && latest.publishedAt) metaParts.push('发布：' + fmtDate(latest.publishedAt));
@@ -421,8 +716,17 @@
     metaParts.push('检查：' + (repo.lastCheck ? relTime(repo.lastCheck) : '未检查'));
     const meta = metaParts.join(' · ');
 
-    const hint = (repo.isNew && repo.lastSeenTag)
-      ? `<div class="meta hint">上次看到的是 ${esc(repo.lastSeenTag)}</div>` : '';
+    const hint = (repo.lastSeenTag && (repo.isNew || repo.isRollback))
+      ? `<div class="meta hint">记录中的版本：${esc(repo.lastSeenTag)}</div>` : '';
+
+    const assets = (latest && latest.assets && latest.assets.length)
+      ? `<details class="assets">
+           <summary>📦 ${latest.assets.length} 个下载文件</summary>
+           <ul>${latest.assets.map(a =>
+             `<li><a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a>` +
+             `<span class="sz">${fmtSize(a.size)}</span></li>`).join('')}</ul>
+         </details>`
+      : '';
 
     return `
       <div class="card${repo.isNew ? ' is-new' : ''}${repo.checking ? ' checking' : ''}">
@@ -432,10 +736,12 @@
           ${badge}
         </div>
         <div class="version">${version}</div>
+        ${relName}
         <div class="meta">${esc(meta)}</div>
         ${hint}
+        ${assets}
         <div class="card-actions">
-          ${latest ? `<a href="${esc(latest.url)}" target="_blank" rel="noopener">查看 Release</a>` : ''}
+          ${latest && latest.url && latest.url !== '#' ? `<a href="${esc(latest.url)}" target="_blank" rel="noopener">查看 Release</a>` : ''}
           ${repo.isNew ? `<button class="primary" data-action="read" data-repo="${esc(repo.fullName)}">标记已读</button>` : ''}
           <button data-action="check" data-repo="${esc(repo.fullName)}">刷新</button>
           <button class="danger" data-action="remove" data-repo="${esc(repo.fullName)}">删除</button>
@@ -460,25 +766,38 @@
   document.getElementById('addForm').addEventListener('submit', function(e){
     e.preventDefault();
     const input = document.getElementById('repoInput');
-    const full = parseRepo(input.value);
-    if(!full){
-      toast('格式不对，请输入 owner/repo 或完整 GitHub 链接');
+    const raw = input.value;
+
+    const candidates = String(raw).split(/[\s,;，；、]+/).filter(Boolean);
+    const parsed = [];
+    let invalid = 0;
+
+    candidates.forEach(t => {
+      const full = parseRepo(t);
+      if(!full){ invalid++; return; }
+      if(state.repos.some(r => r.fullName.toLowerCase() === full.toLowerCase())) return;
+      if(parsed.some(p => p.toLowerCase() === full.toLowerCase())) return;
+      parsed.push(full);
+    });
+
+    if(!parsed.length){
+      toast(invalid ? '格式不对，请输入 owner/repo 或完整 GitHub 链接' : '这些仓库都已经在列表里了');
       return;
     }
-    if(state.repos.some(r => r.fullName.toLowerCase() === full.toLowerCase())){
-      toast('这个仓库已经在列表里了');
-      input.value = '';
-      return;
-    }
-    const repo = {
+
+    const newRepos = parsed.map(full => ({
       fullName: full, lastSeenTag: null, latest: null,
-      error: null, lastCheck: null, checking: false, isNew: false
-    };
-    state.repos.unshift(repo);
+      error: null, lastCheck: null, checking: false,
+      isNew: false, isRollback: false
+    }));
+
+    state.repos = newRepos.concat(state.repos);
     input.value = '';
     save();
     render();
-    checkRepo(repo);
+
+    toast(`已添加 ${newRepos.length} 个仓库${invalid ? `，忽略 ${invalid} 条无效输入` : ''}`);
+    newRepos.forEach(r => checkRepo(r));
   });
 
   document.getElementById('list').addEventListener('click', async function(e){
@@ -490,14 +809,14 @@
     const action = btn.dataset.action;
     if(action === 'check'){
       await checkRepo(repo);
-      document.getElementById('lastRefresh').textContent =
-        '最后刷新：' + new Date().toLocaleTimeString('zh-CN');
+      document.getElementById('lastRefresh').textContent = '最后刷新：' + nowTime();
     }else if(action === 'remove'){
       state.repos = state.repos.filter(r => r !== repo);
       save(); render(); updateTitle();
       toast('已删除 ' + repo.fullName);
     }else if(action === 'read'){
       repo.isNew = false;
+      repo.isRollback = false;
       if(repo.latest) repo.lastSeenTag = repo.latest.tag;
       save(); render(); updateTitle();
     }
@@ -505,10 +824,28 @@
 
   document.getElementById('refreshAll').addEventListener('click', refreshAll);
 
+  document.getElementById('markAllRead').addEventListener('click', function(){
+    let n = 0;
+    state.repos.forEach(r => {
+      if(r.isNew){
+        r.isNew = false;
+        r.isRollback = false;
+        if(r.latest) r.lastSeenTag = r.latest.tag;
+        n++;
+      }
+    });
+    save(); render(); updateTitle();
+    toast(n ? `已标记 ${n} 个仓库为已读` : '没有未读的新版本');
+  });
+
   document.getElementById('includePrerelease').addEventListener('change', function(){
     state.includePrerelease = this.checked;
+    state.repos.forEach(r => {
+      r.lastSeenTag = null; r.isNew = false; r.isRollback = false;
+    });
     save();
     if(state.repos.length) refreshAll();
+    toast(this.checked ? '已包含预发布版本（基线已重置）' : '已只看正式版本（基线已重置）');
   });
 
   document.getElementById('autoRefresh').addEventListener('change', function(){
@@ -521,9 +858,19 @@
   document.getElementById('tokenInput').addEventListener('change', function(){
     state.token = this.value.trim();
     save();
-    toast(state.token ? 'Token 已保存到本地' : 'Token 已清空');
+    toast(state.token ? 'Token 已保存' : 'Token 已清空');
     if(state.repos.length) refreshAll();
   });
+
+  document.getElementById('gistInput').addEventListener('change', function(){
+    state.gistId = this.value.trim();
+    save({ touch:false });
+    setSyncStatus('', state.gistId ? '已绑定 ' + state.gistId.slice(0,8) + '…' : '');
+  });
+
+  document.getElementById('gistCreate').addEventListener('click', createGist);
+  document.getElementById('gistPull').addEventListener('click', () => cloudPull(false));
+  document.getElementById('gistPush').addEventListener('click', () => cloudPush(false));
 
   /* ---------------- 定时器 ---------------- */
 
@@ -535,20 +882,46 @@
     }
   }
 
+  /* ---------------- URL 快速配置（方便手机） ---------------- */
+
+  function applyUrlConfig(){
+    const h = location.hash.replace(/^#/, '');
+    if(!h) return;
+    let p;
+    try{ p = new URLSearchParams(h); }catch(e){ return; }
+    const g = p.get('gist'), t = p.get('token');
+    if(g) state.gistId = g;
+    if(t) state.token = t;
+    if(g || t){
+      try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+      save({ touch:false, push:false });
+    }
+  }
+
   /* ---------------- 启动 ---------------- */
 
-  function init(){
+  async function init(){
     load();
+    applyUrlConfig();
 
     document.getElementById('includePrerelease').checked = state.includePrerelease;
     document.getElementById('autoRefresh').value = String(state.autoRefreshMinutes);
     document.getElementById('tokenInput').value = state.token;
+    document.getElementById('gistInput').value = state.gistId;
 
     render();
     updateTitle();
     setupTimer();
 
-    // 打开页面自动检查一次
+    if(state.gistId && state.token){
+      setSyncStatus('busy', '⏳ 正在拉取云端数据…');
+      const r = await cloudPull(true);
+      if(!r.ok) setSyncStatus('err', '⚠ ' + (r.error || '拉取失败'));
+      render(); updateTitle();
+    }else if(state.gistId && !state.token){
+      setSyncStatus('', '已绑定 Gist，填入 Token 后自动同步');
+    }
+
     if(state.repos.length){
       setTimeout(refreshAll, 300);
     }
