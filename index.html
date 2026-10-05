@@ -365,12 +365,21 @@
 
   /* ---------------- GitHub API ---------------- */
 
+  // HTTP header 只允许 ISO-8859-1，去掉所有非 ASCII 字符，防止 fetch 抛错
+  function cleanHeaderValue(v){
+    return String(v == null ? '' : v).replace(/[^\x20-\x7E\x80-\xFF]/g, '');
+  }
+
   async function ghFetch(path, init){
     const headers = Object.assign(
       { 'Accept': 'application/vnd.github+json' },
       (init && init.headers) || {}
     );
     if(state.token) headers['Authorization'] = 'Bearer ' + state.token.trim();
+
+    Object.keys(headers).forEach(k => {
+      headers[k] = cleanHeaderValue(headers[k]);
+    });
 
     const res = await fetch('https://api.github.com' + path,
       Object.assign({}, init, { headers }));
@@ -579,8 +588,33 @@
       try{ remote = JSON.parse(file.content); }
       catch(e){ throw new Error('云端数据格式异常'); }
 
+      const remoteRepos = remote.repos || [];
+      const localRepos = state.repos || [];
       const remoteAt = remote.updatedAt || 0;
-      if(remoteAt > (state.updatedAt || 0)){
+      const localAt = state.updatedAt || 0;
+
+      // 【修复】云端为空但本地有数据时，绝不覆盖本地，改为把本地推上去
+      if(remoteRepos.length === 0 && localRepos.length > 0){
+        setSyncStatus('busy', '⏳ 云端为空，正在上传本地数据…');
+        try{
+          const pr = await ghFetch('/gists/' + state.gistId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: { [GIST_FILE]: { content: cloudPayload() } }
+            })
+          });
+          if(!pr.ok) throw new Error('HTTP ' + pr.status);
+          setSyncStatus('ok', '✓ 云端为空，已上传本地 ' + nowTime());
+          sync.lastAt = Date.now();
+          return { ok:true, applied:false, restored:true };
+        }catch(e){
+          setSyncStatus('err', '⚠ 上传失败：' + (e.message || ''));
+          return { ok:false, error: e.message || '上传失败' };
+        }
+      }
+
+      if(remoteAt > localAt){
         applyRemote(remote);
         save({ touch:false, push:false });
         render();
@@ -641,6 +675,14 @@
     clearTimeout(sync.pushTimer);
     setSyncStatus('busy', '⏳ 待同步…');
     sync.pushTimer = setTimeout(() => cloudPush(true), 2500);
+  }
+
+  // 【修复】页面加载后如果本地有数据，主动推一次，避免本地数据只留在本地
+  function ensureCloudHasData(){
+    if(!syncReady()) return;
+    if(state.repos.length > 0 && (state.updatedAt || 0) > 0){
+      cloudPush(true);
+    }
   }
 
   async function createGist(){
@@ -856,9 +898,16 @@
   });
 
   document.getElementById('tokenInput').addEventListener('change', function(){
-    state.token = this.value.trim();
+    // Token 只可能是 ASCII，去掉粘贴时可能带入的中文字符、全角空格等
+    let t = this.value.trim().replace(/[^\x21-\x7E]/g, '');
+    this.value = t;
+    state.token = t;
     save();
-    toast(state.token ? 'Token 已保存' : 'Token 已清空');
+    if(t && !/^gh[pousr]_/.test(t)){
+      toast('Token 格式看起来不对，应以 ghp_ 开头');
+    }else{
+      toast(t ? 'Token 已保存' : 'Token 已清空');
+    }
     if(state.repos.length) refreshAll();
   });
 
@@ -870,7 +919,14 @@
 
   document.getElementById('gistCreate').addEventListener('click', createGist);
   document.getElementById('gistPull').addEventListener('click', () => cloudPull(false));
-  document.getElementById('gistPush').addEventListener('click', () => cloudPush(false));
+
+  // 【修复】手动推送空列表时二次确认，防止手滑清空云端
+  document.getElementById('gistPush').addEventListener('click', () => {
+    if(!state.repos.length && state.gistId){
+      if(!confirm('本地列表为空，推送会用空数据覆盖云端，确定继续？')) return;
+    }
+    cloudPush(false);
+  });
 
   /* ---------------- 定时器 ---------------- */
 
@@ -891,7 +947,7 @@
     try{ p = new URLSearchParams(h); }catch(e){ return; }
     const g = p.get('gist'), t = p.get('token');
     if(g) state.gistId = g;
-    if(t) state.token = t;
+    if(t) state.token = t.replace(/[^\x21-\x7E]/g, '');
     if(g || t){
       try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
       save({ touch:false, push:false });
@@ -921,6 +977,9 @@
     }else if(state.gistId && !state.token){
       setSyncStatus('', '已绑定 Gist，填入 Token 后自动同步');
     }
+
+    // 本地有数据时补推一次，保证云端不为空
+    ensureCloudHasData();
 
     if(state.repos.length){
       setTimeout(refreshAll, 300);
