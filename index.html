@@ -61,6 +61,7 @@
     background:#0d1117;color:var(--text);width:170px;font-size:13px;
     font-family:inherit;
   }
+  .options input[type=password]:focus{outline:none;border-color:var(--accent)}
   .options select{
     padding:6px 8px;border-radius:6px;border:1px solid var(--border);
     background:#0d1117;color:var(--text);font-size:13px;font-family:inherit;
@@ -199,6 +200,16 @@
   .tip code{background:#0d1117;padding:1px 5px;border-radius:4px;border:1px solid var(--border)}
   .tip b{color:var(--text)}
 
+  /* ============ 浏览器自动填充样式修复 ============ */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+      -webkit-text-fill-color: var(--text);
+      -webkit-box-shadow: 0 0 0px 1000px #0d1117 inset;
+      transition: background-color 5000s ease-in-out 0s;
+  }
+
   /* ============ 平板及以下 ============ */
   @media (max-width: 720px){
     .app{padding:18px 12px 60px}
@@ -226,7 +237,6 @@
 
     .row button{width:100%}
 
-    /* 选项垂直排列，每个 label 占满一行 */
     .options{
       flex-direction:column;
       align-items:stretch;
@@ -243,7 +253,6 @@
     }
     .options select{font-size:14px;padding:7px 9px}
 
-    /* 同步区：输入框占满，按钮并排 */
     .sync-box{
       flex-direction:column;
       align-items:stretch;
@@ -253,7 +262,6 @@
     .sync-box button.small{flex:1 1 auto;padding:10px 12px;font-size:13px}
     #syncStatus{white-space:normal;text-align:center;padding-top:2px}
 
-    /* 工具栏按钮更大更好按 */
     .toolbar{
       gap:8px;
       padding-top:12px;
@@ -282,7 +290,6 @@
 
     .version{font-size:18px;letter-spacing:.2px}
 
-    /* 卡片操作按钮：等宽自适应，触摸区更大 */
     .card-actions{
       gap:6px;
       margin-top:12px;
@@ -297,7 +304,6 @@
       font-size:12.5px;
     }
 
-    /* 下载文件列表在手机上堆叠 */
     details.assets li{
       flex-direction:column;
       align-items:flex-start;
@@ -353,7 +359,7 @@
         </select>
       </label>
       <label>Token
-        <input type="password" id="tokenInput" placeholder="ghp_xxx（需勾 gist）">
+        <input type="password" id="tokenInput" placeholder="ghp_xxx 或 github_pat_xxx（需勾 gist）">
       </label>
     </div>
 
@@ -375,8 +381,9 @@
     <div class="tip">
       <b>备注：</b>添加仓库时可写成 <code>owner/repo | 中文备注</code>，
       也可以随时点卡片上的「📝 备注」或直接点备注文字来修改。备注会一起云同步。<br>
-      <b>Token：</b>需勾选 <code>gist</code> 权限（classic token 即可），它同时用于 GitHub API 和云同步。
+      <b>Token：</b>需勾选 <code>gist</code> 权限（classic token 或 fine-grained 均可），它同时用于 GitHub API 和云同步。
       填入 Token 后 API 额度从 <code>60 次/小时</code> 提升到 <code>5000 次/小时</code>。
+      额度右侧 <b>🔑</b> 表示 Token 已生效，<b>👤</b> 表示请求未携带 Token（或 Token 无效）。
       Token 与 Gist ID 只保存在各设备浏览器本地，不会进入代码。
     </div>
   </section>
@@ -489,7 +496,7 @@
   }
 
   function relTime(ts){
-    const diff = Date.now() - ts;
+    const diff = Math.max(0, Date.now() - ts); // 防止本地时间慢于服务器导致负数
     if(diff < 60000) return '刚刚';
     const m = Math.floor(diff / 60000);
     if(m < 60) return m + ' 分钟前';
@@ -542,7 +549,23 @@
     if(A.pre === B.pre) return 0;
     if(!A.pre) return 1;
     if(!B.pre) return -1;
-    return A.pre > B.pre ? 1 : -1;
+
+    // 分段比较 pre-release，解决 rc.10 > rc.2 的问题
+    const partsA = A.pre.split(/[-_.]/);
+    const partsB = B.pre.split(/[-_.]/);
+    const len = Math.max(partsA.length, partsB.length);
+    for(let i = 0; i < len; i++) {
+      const pA = partsA[i] || '', pB = partsB[i] || '';
+      const isNumA = /^\d+$/.test(pA);
+      const isNumB = /^\d+$/.test(pB);
+      if (isNumA && isNumB) {
+        const nA = parseInt(pA, 10), nB = parseInt(pB, 10);
+        if (nA !== nB) return nA > nB ? 1 : -1;
+      } else {
+        if (pA !== pB) return pA > pB ? 1 : -1;
+      }
+    }
+    return 0;
   }
 
   let toastTimer = null;
@@ -560,12 +583,24 @@
     return String(v == null ? '' : v).replace(/[^\x20-\x7E\x80-\xFF]/g, '');
   }
 
+  /* 从输入框实时读取 Token（比只信 state.token 更可靠） */
+  function currentToken(){
+    const el = document.getElementById('tokenInput');
+    const uiToken = el ? el.value.trim().replace(/[^\x21-\x7E]/g, '') : '';
+    return uiToken || (state.token || '').trim();
+  }
+
   async function ghFetch(path, init){
+    // 关键：每次请求前都从输入框读最新 Token，
+    // 避免 state.token 未同步（粘贴未失焦 / URL 参数时序等）导致请求退化为匿名访问
+    const effectiveToken = currentToken();
+    if(effectiveToken && effectiveToken !== state.token) state.token = effectiveToken;
+
     const headers = Object.assign(
       { 'Accept': 'application/vnd.github+json' },
       (init && init.headers) || {}
     );
-    if(state.token) headers['Authorization'] = 'Bearer ' + state.token.trim();
+    if(effectiveToken) headers['Authorization'] = 'Bearer ' + effectiveToken;
 
     Object.keys(headers).forEach(k => {
       headers[k] = cleanHeaderValue(headers[k]);
@@ -579,7 +614,8 @@
       state.rate = {
         remaining: Number(rem),
         limit: Number(res.headers.get('x-ratelimit-limit')),
-        reset: Number(res.headers.get('x-ratelimit-reset'))
+        reset: Number(res.headers.get('x-ratelimit-reset')),
+        authed: !!effectiveToken
       };
       renderRate();
     }
@@ -626,6 +662,7 @@
     if(state.includePrerelease){
       const res = await ghFetch(`/repos/${repo.fullName}/releases?per_page=1`);
       if(isRateLimited(res)) throw new Error(rateMsg(res));
+      if(res.status === 401) throw new Error('Token 无效或缺少权限');
       if(res.status === 404) throw new Error('仓库不存在或不可访问');
       if(!res.ok) throw new Error('HTTP ' + res.status);
       const arr = await res.json();
@@ -633,6 +670,7 @@
     }else{
       const res = await ghFetch(`/repos/${repo.fullName}/releases/latest`);
       if(isRateLimited(res)) throw new Error(rateMsg(res));
+      if(res.status === 401) throw new Error('Token 无效或缺少权限');
       if(res.ok) return await res.json();
       if(res.status !== 404) throw new Error('HTTP ' + res.status);
     }
@@ -679,7 +717,11 @@
       }
     }catch(e){
       repo.lastCheck = Date.now();
-      repo.error = e.message || '请求失败';
+      const msg = e.message || '请求失败';
+      // 优化网络错误提示
+      repo.error = /Failed to fetch|NetworkError|Load failed/i.test(msg)
+        ? '网络连接失败，请检查网络'
+        : msg;
     }finally{
       repo.checking = false;
       save();
@@ -714,7 +756,7 @@
   };
 
   function syncReady(){
-    return !!(state.gistId && state.token);
+    return !!(state.gistId && currentToken());
   }
 
   function setSyncStatus(kind, text){
@@ -766,6 +808,7 @@
     try{
       const res = await ghFetch('/gists/' + state.gistId);
       if(res.status === 404) throw new Error('Gist 不存在或 Token 无权限');
+      if(res.status === 401) throw new Error('Token 无效或缺少 gist 权限');
       if(!res.ok) throw new Error('HTTP ' + res.status);
 
       const data = await res.json();
@@ -876,7 +919,7 @@
   }
 
   async function createGist(){
-    if(!state.token){
+    if(!currentToken()){
       toast('请先填写带 gist 权限的 Token');
       return;
     }
@@ -930,10 +973,20 @@
   function renderRate(){
     const el = document.getElementById('rateInfo');
     if(state.rate && !isNaN(state.rate.remaining)){
-      el.textContent = `API 剩余额度：${state.rate.remaining}/${state.rate.limit}`;
-      el.style.color = state.rate.remaining < 10 ? 'var(--red)' : '';
+      const authed = state.rate.limit > 60; // 额度 > 60 基本就意味着 Token 生效了
+      el.textContent =
+        `API 剩余额度：${state.rate.remaining}/${state.rate.limit}` +
+        (authed ? ' 🔑' : ' 👤(未登录)');
+      el.style.color =
+        state.rate.remaining < 10 ? 'var(--red)' :
+        (authed ? 'var(--green)' : 'var(--yellow)');
+      el.title = authed
+        ? 'Token 生效中，额度 5000/小时'
+        : '请求未携带 Token 或 Token 无效，额度仅 60/小时';
     }else{
       el.textContent = '';
+      el.style.color = '';
+      el.title = '';
     }
   }
 
@@ -1194,15 +1247,24 @@
     toast(state.autoRefreshMinutes ? `已开启自动刷新：每 ${state.autoRefreshMinutes} 分钟` : '已关闭自动刷新');
   });
 
-  document.getElementById('tokenInput').addEventListener('change', function(){
-    let t = this.value.trim().replace(/[^\x21-\x7E]/g, '');
+  /* -------- Token 输入：实时同步 state，失焦时保存并刷新 -------- */
+  const tokenEl = document.getElementById('tokenInput');
+
+  // 每次输入都同步到 state（不触发 save，避免频繁写入和推送）
+  tokenEl.addEventListener('input', function(){
+    state.token = this.value.trim().replace(/[^\x21-\x7E]/g, '');
+  });
+
+  // 失焦 / 回车时正式保存，并按需刷新
+  tokenEl.addEventListener('change', function(){
+    const t = this.value.trim().replace(/[^\x21-\x7E]/g, '');
     this.value = t;
     state.token = t;
     save();
-    if(t && !/^gh[pousr]_/.test(t)){
-      toast('Token 格式看起来不对，应以 ghp_ 开头');
+    if(t && !/^(gh[pousr]_|github_pat_)/.test(t)){
+      toast('Token 格式看起来不对，应以 ghp_ 或 github_pat_ 开头');
     }else{
-      toast(t ? 'Token 已保存' : 'Token 已清空');
+      toast(t ? 'Token 已保存，正在刷新…' : 'Token 已清空');
     }
     if(state.repos.length) refreshAll();
   });
@@ -1264,12 +1326,12 @@
     updateTitle();
     setupTimer();
 
-    if(state.gistId && state.token){
+    if(state.gistId && currentToken()){
       setSyncStatus('busy', '⏳ 正在拉取云端数据…');
       const r = await cloudPull(true);
       if(!r.ok) setSyncStatus('err', '⚠ ' + (r.error || '拉取失败'));
       render(); updateTitle();
-    }else if(state.gistId && !state.token){
+    }else if(state.gistId && !currentToken()){
       setSyncStatus('', '已绑定 Gist，填入 Token 后自动同步');
     }
 
