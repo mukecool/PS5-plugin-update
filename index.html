@@ -9,6 +9,7 @@
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
     --text:#e6edf3; --muted:#8b949e; --accent:#2f81f7;
     --green:#3fb950; --red:#f85149; --yellow:#d29922;
+    --purple:#a371f7;
     --radius:12px;
   }
   *{box-sizing:border-box}
@@ -20,17 +21,70 @@
     -webkit-text-size-adjust:100%;
     -webkit-tap-highlight-color:transparent;
   }
-  .app{max-width:1000px;margin:0 auto;padding:24px 16px calc(60px + env(safe-area-inset-bottom))}
-  header h1{margin:0 0 4px;font-size:24px;line-height:1.25}
-  header .sub{margin:0 0 20px;color:var(--muted);font-size:14px}
+  .app{max-width:1100px;margin:0 auto;padding:16px 16px calc(50px + env(safe-area-inset-bottom))}
 
-  .panel{
+  /* ============ 顶部精简栏 ============ */
+  .topbar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .topbar .brand{
+    font-size:16px;font-weight:700;
+    display:flex;align-items:center;gap:7px;
+    flex:1 1 auto;min-width:0;
+    white-space:nowrap;
+  }
+  .topbar .brand .new-badge{
+    background:var(--green);color:#0d1117;
+    font-size:11px;font-weight:800;
+    padding:1px 8px;border-radius:999px;
+    letter-spacing:.2px;
+  }
+  .topbar .tools{
+    display:flex;gap:7px;flex-wrap:wrap;
+  }
+  .tool-btn{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:8px 13px;border-radius:9px;
+    border:1px solid var(--border);background:var(--panel);
+    color:var(--text);font-size:13px;font-family:inherit;
+    cursor:pointer;transition:.15s;white-space:nowrap;
+  }
+  .tool-btn:hover{background:#262c36;border-color:#484f58}
+  .tool-btn.active{
+    background:rgba(47,129,247,.15);
+    border-color:var(--accent);color:#79c0ff;
+  }
+  .tool-btn.primary{
+    background:var(--accent);border-color:var(--accent);color:#fff;
+  }
+  .tool-btn.primary:hover{background:#1f6feb}
+  .tool-btn .ic{font-size:14px;line-height:1}
+
+  /* ============ 可折叠的设置面板 ============ */
+  .settings{
     background:var(--panel);border:1px solid var(--border);
-    border-radius:var(--radius);padding:16px;margin-bottom:20px;
+    border-radius:var(--radius);margin-bottom:16px;
+    overflow:hidden;
+    animation:slideDown .22s ease;
+  }
+  @keyframes slideDown{
+    from{opacity:0;transform:translateY(-6px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .settings-inner{padding:14px 16px}
+
+  .settings-section{margin-bottom:16px}
+  .settings-section:last-child{margin-bottom:0}
+  .settings-section-title{
+    font-size:12px;font-weight:600;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.5px;
+    margin-bottom:9px;
+    display:flex;align-items:center;gap:6px;
   }
 
   #repoInput{
-    width:100%;min-height:64px;resize:vertical;padding:10px 12px;border-radius:8px;
+    width:100%;min-height:60px;resize:vertical;padding:10px 12px;border-radius:8px;
     border:1px solid var(--border);background:#0d1117;color:var(--text);
     font-size:14px;outline:none;font-family:inherit;line-height:1.5;
   }
@@ -40,8 +94,8 @@
   .row button{flex:1 1 auto}
 
   button{
-    padding:10px 16px;border-radius:8px;border:1px solid var(--border);
-    background:var(--panel2);color:var(--text);font-size:14px;
+    padding:9px 15px;border-radius:8px;border:1px solid var(--border);
+    background:var(--panel2);color:var(--text);font-size:13.5px;
     cursor:pointer;transition:.15s;font-family:inherit;
   }
   button:hover{background:#262c36;border-color:#484f58}
@@ -49,11 +103,11 @@
   button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
   button.primary:hover{background:#1f6feb}
   button.danger:hover{background:#3d1418;border-color:var(--red);color:#ff7b72}
-  button.small{font-size:12px;padding:7px 12px;border-radius:7px}
+  button.small{font-size:12px;padding:6px 11px;border-radius:7px}
 
   .options{
     display:flex;gap:14px 18px;flex-wrap:wrap;align-items:center;
-    margin-top:14px;font-size:13px;color:var(--muted);
+    font-size:13px;color:var(--muted);
   }
   .options label{display:flex;align-items:center;gap:6px;cursor:pointer}
   .options input[type=password]{
@@ -67,8 +121,80 @@
     background:#0d1117;color:var(--text);font-size:13px;font-family:inherit;
   }
 
+  /* ===== 分类管理 ===== */
+  .category-chips{
+    display:flex;gap:8px;flex-wrap:wrap;min-height:0;margin-bottom:10px;
+  }
+  .cat-chip{
+    display:inline-flex;align-items:center;gap:2px;
+    background:var(--panel2);border:1px solid var(--border);
+    border-radius:999px;padding:3px 3px 3px 11px;
+    font-size:12px;color:var(--text);
+    transition:.15s;
+  }
+  .cat-chip:hover{border-color:#484f58}
+  .cat-chip .cat-count{color:var(--muted);font-size:11px;margin-left:2px}
+  .cat-chip .cat-del{
+    border:none;background:transparent;color:var(--muted);
+    cursor:pointer;padding:0;margin-left:4px;
+    font-size:13px;line-height:1;
+    border-radius:50%;height:18px;width:18px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:inherit;
+  }
+  .cat-chip .cat-del:hover{background:rgba(248,81,73,.2);color:#ff7b72}
+  .cat-empty{font-size:12px;color:var(--muted);font-style:italic;padding:2px 0}
+  .cat-add-row{display:flex;gap:8px}
+  .cat-add-row input{
+    flex:1;min-width:0;padding:7px 10px;border-radius:7px;
+    border:1px solid var(--accent);background:#0d1117;color:var(--text);
+    font-size:13px;font-family:inherit;outline:none;
+  }
+  .cat-add-row input:focus{box-shadow:0 0 0 3px rgba(47,129,247,.2)}
+
+  /* ===== 批量分类 ===== */
+  .bulk-list{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(min(100%,280px), 1fr));
+    gap:8px;max-height:300px;overflow:auto;
+    padding:10px;background:#0d1117;border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .bulk-item{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 8px;border-radius:7px;background:var(--panel);
+    border:1px solid var(--border);font-size:12px;
+  }
+  .bulk-item input[type=checkbox]{
+    flex:0 0 auto;width:15px;height:15px;accent-color:var(--accent);
+  }
+  .bulk-item .bulk-name{
+    flex:1 1 auto;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    color:var(--text);
+  }
+  .bulk-item .bulk-cat{
+    flex:0 0 auto;font-size:10.5px;
+    padding:1px 7px;border-radius:999px;
+    background:rgba(163,113,247,.15);color:var(--purple);
+    border:1px solid rgba(163,113,247,.3);
+    max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .bulk-bar{
+    margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    padding:10px;background:var(--panel2);border:1px solid var(--border);
+    border-radius:9px;
+  }
+  .bulk-bar .bulk-count{font-size:12.5px;color:var(--muted);flex:0 0 auto}
+  .bulk-bar .bulk-count b{color:var(--accent);font-weight:600}
+  .bulk-bar select{
+    flex:1;min-width:140px;padding:7px 9px;border-radius:7px;
+    border:1px solid var(--border);background:var(--panel);
+    color:var(--text);font-size:13px;font-family:inherit;
+  }
+  .bulk-bar select:focus{outline:none;border-color:var(--accent)}
+
+  /* ===== 同步区 ===== */
   .sync-box{
-    margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);
     display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;
   }
   .sync-box input{
@@ -82,15 +208,61 @@
   #syncStatus.err{color:var(--red)}
   #syncStatus.busy{color:var(--yellow)}
 
-  .toolbar{
-    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-    margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);
+  .tip{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.6}
+  .tip code{background:#0d1117;padding:1px 5px;border-radius:4px;border:1px solid var(--border);font-size:11.5px}
+  .tip b{color:var(--text)}
+
+  /* ============ 列表区（主体） ============ */
+  .list-toolbar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-bottom:16px;
     font-size:13px;color:var(--muted);
   }
+  .list-toolbar .summary{
+    font-size:13.5px;color:var(--text);font-weight:600;
+    flex:1 1 auto;min-width:0;
+  }
+  .list-toolbar .summary .num{
+    color:var(--green);
+  }
+  .list-toolbar select{
+    padding:6px 10px;border-radius:7px;border:1px solid var(--border);
+    background:var(--panel);color:var(--text);font-size:13px;font-family:inherit;
+    max-width:200px;
+  }
+  .list-toolbar select:focus{outline:none;border-color:var(--accent)}
+  #rateInfo{font-size:12px;white-space:nowrap}
+  #lastRefresh{font-size:12px;white-space:nowrap;color:var(--muted)}
 
-  #list{
+  #list{display:block}
+
+  .category-group{margin-bottom:26px}
+  .category-group:last-child{margin-bottom:0}
+
+  .category-header{
+    font-size:14px;font-weight:600;color:var(--text);
+    padding:0 0 9px;margin-bottom:13px;
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:9px;
+  }
+  .category-header .cat-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--accent);flex:0 0 auto;
+  }
+  .category-header.is-uncat .cat-dot{background:var(--muted)}
+  .category-header .cat-total{
+    background:var(--panel2);color:var(--muted);
+    font-size:11px;padding:1px 8px;border-radius:999px;
+    font-weight:500;border:1px solid var(--border);
+  }
+  .category-header .cat-new-tip{
+    color:var(--green);font-size:12px;font-weight:500;
+    margin-left:auto;
+  }
+
+  .category-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    grid-template-columns:repeat(auto-fill, minmax(min(100%, 340px), 1fr));
     gap:14px;
   }
 
@@ -100,9 +272,22 @@
     overflow-wrap:anywhere;
   }
   .card:hover{border-color:#484f58;transform:translateY(-1px)}
-  .card.is-new{border-color:var(--green);box-shadow:0 0 0 1px rgba(63,185,80,.35),0 6px 22px -12px rgba(63,185,80,.6)}
+
+  .card.is-new{
+    border-color:var(--green);
+    box-shadow:0 0 0 1px rgba(63,185,80,.35),0 6px 22px -12px rgba(63,185,80,.6);
+    animation:newGlow 1.2s ease-in-out 6;
+  }
+  @keyframes newGlow{
+    0%,100%{box-shadow:0 0 0 1px rgba(63,185,80,.35),0 6px 22px -12px rgba(63,185,80,.6)}
+    50%    {box-shadow:0 0 0 3px rgba(63,185,80,.55),0 10px 30px -8px rgba(63,185,80,.9)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card.is-new{animation:none}
+  }
+
   .card.is-new::before{
-    content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;
+    content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;
     background:var(--green);border-radius:0 3px 3px 0;
   }
   .card.checking{opacity:.65}
@@ -118,7 +303,6 @@
   }
   .repo-name:hover{text-decoration:underline}
 
-  /* ===== 中文备注 ===== */
   .repo-note{
     display:inline-block;max-width:100%;margin-top:3px;
     font-size:13px;font-weight:600;color:#e3b341;
@@ -133,6 +317,34 @@
     font-size:13px;font-family:inherit;outline:none;
   }
   .note-editor input:focus{box-shadow:0 0 0 3px rgba(47,129,247,.2)}
+
+  /* ===== 卡片分类选择器 ===== */
+  .cat-row{
+    margin-top:8px;display:flex;align-items:center;gap:8px;
+    background:#0d1117;border:1px solid var(--border);
+    border-radius:8px;padding:5px 10px;
+    transition:.15s;
+  }
+  .cat-row:hover{border-color:#484f58}
+  .cat-row:focus-within{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(47,129,247,.2);
+  }
+  .cat-row .cat-label{
+    font-size:11.5px;color:var(--muted);flex:0 0 auto;
+    white-space:nowrap;user-select:none;
+  }
+  .cat-select{
+    flex:1;min-width:0;
+    font-size:13px;padding:4px 6px;border-radius:5px;
+    border:none;background:transparent;
+    color:var(--text);cursor:pointer;font-family:inherit;
+    outline:none;font-weight:500;
+    -webkit-appearance:menulist;
+    appearance:menulist;
+  }
+  .cat-select.is-empty{color:var(--muted)}
+  .cat-select option{background:var(--panel2);color:var(--text)}
 
   .badge{font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap;
          border:1px solid transparent;flex:0 0 auto}
@@ -185,9 +397,12 @@
   .card-actions a:hover{background:#262c36;border-color:#484f58}
 
   .empty{
-    text-align:center;color:var(--muted);padding:50px 20px;
+    text-align:center;color:var(--muted);padding:60px 20px;
     border:1px dashed var(--border);border-radius:var(--radius);font-size:14px;
   }
+  .empty .big{font-size:38px;display:block;margin-bottom:10px;opacity:.7}
+  .empty .hint-text{font-size:13px;margin-top:6px}
+
   .toast{
     position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
     background:var(--panel2);border:1px solid var(--border);color:var(--text);
@@ -196,9 +411,6 @@
     text-align:center;
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .tip{font-size:12px;color:var(--muted);margin-top:10px}
-  .tip code{background:#0d1117;padding:1px 5px;border-radius:4px;border:1px solid var(--border)}
-  .tip b{color:var(--text)}
 
   /* ============ 浏览器自动填充样式修复 ============ */
   input:-webkit-autofill,
@@ -210,91 +422,52 @@
       transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* ============ 平板及以下 ============ */
-  @media (max-width: 720px){
-    .app{padding:18px 12px 60px}
-    header h1{font-size:21px}
-    header .sub{font-size:13px;margin-bottom:16px}
-    .panel{padding:14px;margin-bottom:16px}
-
-    .options{gap:10px 14px}
-    .options label{font-size:13px}
-    .options input[type=password]{width:150px}
-
-    #list{grid-template-columns:1fr;gap:12px}
-    .card{padding:13px 14px}
-    .version{font-size:19px}
-  }
-
   /* ============ 手机 ============ */
-  @media (max-width: 560px){
-    .app{padding:14px 10px calc(50px + env(safe-area-inset-bottom))}
-    header h1{font-size:19px}
-    header .sub{font-size:12.5px;margin-bottom:14px}
+  @media (max-width: 640px){
+    .app{padding:12px 10px calc(40px + env(safe-area-inset-bottom))}
+    .topbar{gap:8px;margin-bottom:12px}
+    .topbar .brand{font-size:15px;flex:1 1 100%}
+    .topbar .tools{width:100%}
+    .tool-btn{
+      flex:1 1 auto;justify-content:center;
+      padding:9px 10px;font-size:12.5px;min-width:0;
+    }
+    .tool-btn .label{display:none}
+    .tool-btn .label-show{display:inline}
+    .tool-btn .ic{font-size:16px}
 
-    .panel{padding:12px;border-radius:10px;margin-bottom:14px}
-    #repoInput{min-height:56px;font-size:15px;padding:10px}
-
-    .row button{width:100%}
+    .settings-inner{padding:12px}
 
     .options{
       flex-direction:column;
       align-items:stretch;
       gap:10px;
-      margin-top:12px;
     }
-    .options label{
-      justify-content:space-between;
-      font-size:14px;
-      padding:2px 0;
-    }
-    .options input[type=password]{
-      width:60%;max-width:220px;
-    }
+    .options label{justify-content:space-between;font-size:14px;padding:2px 0}
+    .options input[type=password]{width:60%;max-width:220px}
     .options select{font-size:14px;padding:7px 9px}
 
-    .sync-box{
-      flex-direction:column;
-      align-items:stretch;
-      gap:8px;
-    }
-    .sync-box input{width:100%;flex:1 1 auto;padding:10px}
+    .sync-box{flex-direction:column;align-items:stretch;gap:8px}
+    .sync-box input{width:100%;padding:10px}
     .sync-box button.small{flex:1 1 auto;padding:10px 12px;font-size:13px}
     #syncStatus{white-space:normal;text-align:center;padding-top:2px}
 
-    .toolbar{
-      gap:8px;
-      padding-top:12px;
-      margin-top:12px;
-    }
-    .toolbar button{
-      flex:1 1 auto;
-      padding:10px 12px;
-      font-size:13.5px;
-      min-width:120px;
-    }
-    .toolbar #rateInfo,
-    .toolbar #lastRefresh{
-      flex:1 1 100%;
-      font-size:12px;
-    }
+    .category-grid{grid-template-columns:1fr;gap:12px}
+    .bulk-list{grid-template-columns:1fr;max-height:300px}
+    .bulk-bar{flex-direction:column;align-items:stretch}
+    .bulk-bar select{min-width:0;width:100%}
+    .bulk-bar button{width:100%}
+
+    .list-toolbar{gap:8px;margin-bottom:13px}
+    .list-toolbar .summary{flex:1 1 100%;font-size:13px}
+    .list-toolbar select{flex:1 1 auto;max-width:none;font-size:14px;padding:8px 10px}
+    #rateInfo, #lastRefresh{flex:0 0 auto}
 
     .card{padding:13px 13px 11px}
-    .card-head{margin-bottom:8px}
-    .repo-name{font-size:14.5px}
-    .repo-note{font-size:13.5px}
-    .note-editor input{font-size:15px;padding:9px 10px}
-    .note-editor button{flex:1 1 auto;padding:9px 12px;font-size:13px}
-    .badge{font-size:10.5px;padding:2px 7px}
-    .badge.error{max-width:100%;white-space:normal}
+    .version{font-size:19px}
+    .cat-row{padding:7px 11px}
+    .cat-select{font-size:14px}
 
-    .version{font-size:18px;letter-spacing:.2px}
-
-    .card-actions{
-      gap:6px;
-      margin-top:12px;
-      padding-top:10px;
-    }
     .card-actions button,
     .card-actions a{
       flex:1 1 auto;
@@ -303,93 +476,163 @@
       padding:9px 8px;
       font-size:12.5px;
     }
-
-    details.assets li{
-      flex-direction:column;
-      align-items:flex-start;
-      gap:2px;
-    }
-    details.assets .sz{font-size:10.5px}
-    details.assets ul{max-height:260px}
-
-    .tip{font-size:12px;line-height:1.55}
-    .toast{left:14px;right:14px;transform:translateY(20px);max-width:none}
-    .toast.show{transform:translateY(0)}
   }
 
-  /* ============ 小屏手机（iPhone SE 等） ============ */
+  /* ============ 小屏手机 ============ */
   @media (max-width: 380px){
-    .app{padding:12px 8px 40px}
-    header h1{font-size:18px}
-    header .sub{font-size:12px}
-    .panel{padding:10px}
-    .card{padding:11px 11px 10px}
-    .version{font-size:17px}
-    .card-actions button,
-    .card-actions a{padding:8px 6px;font-size:12px}
-    .toolbar button{min-width:100px;font-size:13px}
+    .app{padding:10px 8px 36px}
+    .topbar .brand{font-size:14px}
+    .tool-btn{padding:8px 8px;font-size:12px}
+    .version{font-size:18px}
+    .card{padding:12px 12px 10px}
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <h1>🔔 GitHub Release 更新监控</h1>
-    <p class="sub">添加你关注的 PS5 插件仓库，自动检测新版本；数据可同步到你的私有 Gist，多设备共用</p>
-  </header>
 
-  <section class="panel">
-    <form id="addForm" autocomplete="off">
-      <textarea id="repoInput"
-        placeholder="每行一个仓库，支持批量粘贴，可加中文备注：&#10;EchoStretch/kstuff | 金手指插件&#10;GoldHEN/GoldHEN | 自制系统&#10;https://github.com/owner/repo | 某个工具"></textarea>
-      <div class="row">
-        <button type="submit" class="primary">＋ 添加仓库</button>
-      </div>
-    </form>
-
-    <div class="options">
-      <label><input type="checkbox" id="includePrerelease"> 包含预发布版本</label>
-      <label>自动刷新
-        <select id="autoRefresh">
-          <option value="0">关闭</option>
-          <option value="10">每 10 分钟</option>
-          <option value="30">每 30 分钟</option>
-          <option value="60">每 1 小时</option>
-          <option value="360">每 6 小时</option>
-        </select>
-      </label>
-      <label>Token
-        <input type="password" id="tokenInput" placeholder="ghp_xxx 或 github_pat_xxx（需勾 gist）">
-      </label>
+  <!-- ============ 顶部精简栏 ============ -->
+  <div class="topbar">
+    <div class="brand">
+      🔔 <span>Release 监控</span>
+      <span class="new-badge" id="topNewBadge" style="display:none">0</span>
     </div>
-
-    <div class="sync-box">
-      <input id="gistInput" placeholder="Gist ID（首次点右侧「创建」自动生成）">
-      <button type="button" id="gistCreate" class="small">创建 / 绑定</button>
-      <button type="button" id="gistPull" class="small">☁ 拉取</button>
-      <button type="button" id="gistPush" class="small">⬆ 推送</button>
-      <span id="syncStatus"></span>
+    <div class="tools">
+      <button class="tool-btn primary" id="btnAdd" type="button">
+        <span class="ic">＋</span><span class="label-show">添加</span>
+      </button>
+      <button class="tool-btn" id="btnRefresh" type="button">
+        <span class="ic">🔄</span><span class="label-show">刷新</span>
+      </button>
+      <button class="tool-btn" id="btnCategory" type="button">
+        <span class="ic">🏷️</span><span class="label-show">分类</span>
+      </button>
+      <button class="tool-btn" id="btnSync" type="button">
+        <span class="ic">☁</span><span class="label-show">同步</span>
+      </button>
+      <button class="tool-btn" id="btnSettings" type="button">
+        <span class="ic">⚙️</span><span class="label-show">设置</span>
+      </button>
     </div>
+  </div>
 
-    <div class="toolbar">
-      <button id="refreshAll">🔄 全部刷新</button>
-      <button id="markAllRead">✓ 全部标记已读</button>
-      <span id="rateInfo"></span>
-      <span id="lastRefresh"></span>
-    </div>
-
-    <div class="tip">
-      <b>备注：</b>添加仓库时可写成 <code>owner/repo | 中文备注</code>，
-      也可以随时点卡片上的「📝 备注」或直接点备注文字来修改。备注会一起云同步。<br>
-      <b>Token：</b>需勾选 <code>gist</code> 权限（classic token 或 fine-grained 均可），它同时用于 GitHub API 和云同步。
-      填入 Token 后 API 额度从 <code>60 次/小时</code> 提升到 <code>5000 次/小时</code>。
-      额度右侧 <b>🔑</b> 表示 Token 已生效，<b>👤</b> 表示请求未携带 Token（或 Token 无效）。
-      Token 与 Gist ID 只保存在各设备浏览器本地，不会进入代码。
+  <!-- ============ 添加面板（默认隐藏） ============ -->
+  <section class="settings" id="panelAdd" style="display:none">
+    <div class="settings-inner">
+      <div class="settings-section-title">➕ 添加仓库</div>
+      <form id="addForm" autocomplete="off">
+        <textarea id="repoInput"
+          placeholder="每行一个仓库，支持批量粘贴，可加中文备注：&#10;EchoStretch/kstuff | 金手指插件&#10;GoldHEN/GoldHEN | 自制系统"></textarea>
+        <div class="row">
+          <button type="submit" class="primary">添加</button>
+        </div>
+      </form>
     </div>
   </section>
 
+  <!-- ============ 分类管理面板（默认隐藏） ============ -->
+  <section class="settings" id="panelCategory" style="display:none">
+    <div class="settings-inner">
+      <div class="settings-section">
+        <div class="settings-section-title">
+          🏷️ 分类管理
+          <button type="button" id="addCategoryBtn" class="small" style="margin-left:auto">＋ 新建分类</button>
+        </div>
+        <div class="category-chips" id="categoryChips"></div>
+        <div class="cat-add-row" id="catAddRow" style="display:none">
+          <input id="catNewName" type="text" placeholder="输入分类名（最多 12 字），回车添加" maxlength="12" autocomplete="off">
+          <button type="button" class="primary small" id="catAddConfirm">添加</button>
+          <button type="button" class="small" id="catAddCancel">取消</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">
+          ✅ 批量修改分类
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button type="button" class="small" id="bulkSelectAll">全选</button>
+            <button type="button" class="small" id="bulkSelectNone">全不选</button>
+          </span>
+        </div>
+        <div class="bulk-list" id="bulkList"></div>
+        <div class="bulk-bar">
+          <span class="bulk-count">已选 <b id="bulkCount">0</b> 个</span>
+          <select id="bulkCategorySel"></select>
+          <button type="button" class="primary" id="bulkApply">应用到所选</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 同步面板（默认隐藏） ============ -->
+  <section class="settings" id="panelSync" style="display:none">
+    <div class="settings-inner">
+      <div class="settings-section">
+        <div class="settings-section-title">☁ 云同步（私有 Gist）</div>
+        <div class="sync-box">
+          <input id="gistInput" placeholder="Gist ID（首次点右侧「创建」自动生成）">
+          <button type="button" id="gistCreate" class="small">创建 / 绑定</button>
+          <button type="button" id="gistPull" class="small">⬇ 拉取</button>
+          <button type="button" id="gistPush" class="small">⬆ 推送</button>
+          <span id="syncStatus"></span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">🔑 GitHub Token</div>
+        <div class="options">
+          <label style="flex:1 1 100%">
+            <input type="password" id="tokenInput" placeholder="ghp_xxx 或 github_pat_xxx（需勾 gist）" style="width:100%;max-width:100%">
+          </label>
+        </div>
+        <div class="tip">
+          需勾选 <code>gist</code> 权限，同时用于 GitHub API 和云同步。
+          填入后 API 额度从 <code>60 次/小时</code> 提升到 <code>5000 次/小时</code>。
+          额度右侧 <b>🔑</b> 表示 Token 生效，<b>👤</b> 表示未携带或无效。
+          Token 与 Gist ID 只保存在本设备浏览器本地，不会进入代码。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 设置面板（默认隐藏） ============ -->
+  <section class="settings" id="panelSettings" style="display:none">
+    <div class="settings-inner">
+      <div class="settings-section">
+        <div class="settings-section-title">⚙️ 通用设置</div>
+        <div class="options">
+          <label><input type="checkbox" id="includePrerelease"> 包含预发布版本</label>
+          <label>自动刷新
+            <select id="autoRefresh">
+              <option value="0">关闭</option>
+              <option value="10">每 10 分钟</option>
+              <option value="30">每 30 分钟</option>
+              <option value="60">每 1 小时</option>
+              <option value="360">每 6 小时</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 列表工具栏 ============ -->
+  <div class="list-toolbar">
+    <span class="summary" id="listSummary">还没有关注的仓库</span>
+    <select id="filterCategory" title="按分类筛选">
+      <option value="__all__">全部分类</option>
+    </select>
+    <button id="markAllRead" class="small" type="button" title="把所有新版本标记为已读">✓ 全部已读</button>
+    <span id="rateInfo"></span>
+    <span id="lastRefresh"></span>
+  </div>
+
+  <!-- ============ 列表主体 ============ -->
   <main id="list"></main>
-  <div id="empty" class="empty">还没有关注的仓库，添加一个试试～</div>
+  <div id="empty" class="empty">
+    <span class="big">📭</span>
+    <div>还没有关注的仓库</div>
+    <div class="hint-text">点右上角 <b>＋ 添加</b> 开始吧～</div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -400,16 +643,21 @@
   const STORAGE_KEY = 'gh-release-watcher-v1';
   const GIST_FILE   = 'gh-release-watcher.json';
   const NOTE_MAX    = 40;
+  const CAT_MAX     = 12;
 
   const state = {
     repos: [],
+    categories: [],
     token: '',
     gistId: '',
     updatedAt: 0,
     includePrerelease: false,
     autoRefreshMinutes: 0,
     rate: null,
-    editingNote: null      // 正在编辑备注的仓库 fullName
+    editingNote: null,
+    filterCategory: '__all__',
+    bulkSelected: {},
+    openPanel: null     // 'add' | 'category' | 'sync' | 'settings' | null
   };
 
   /* ---------------- 本地持久化 ---------------- */
@@ -422,14 +670,19 @@
       state.repos = (d.repos || []).map(r => ({
         fullName: r.fullName,
         note: r.note || '',
+        category: r.category || '',
         lastSeenTag: r.lastSeenTag ?? null,
         latest: r.latest || null,
         error: null,
         lastCheck: r.lastCheck || null,
         isNew: false,
         isRollback: false,
+        previousTag: null,
         checking: false
       }));
+      state.categories = Array.isArray(d.categories)
+        ? d.categories.filter(c => typeof c === 'string' && c.trim()).slice(0, 60)
+        : [];
       state.token = d.token || '';
       state.gistId = d.gistId || '';
       state.updatedAt = d.updatedAt || 0;
@@ -441,16 +694,17 @@
   function save(opts){
     opts = opts || {};
     if(opts.touch !== false) state.updatedAt = Date.now();
-
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         repos: state.repos.map(r => ({
           fullName: r.fullName,
           note: r.note || '',
+          category: r.category || '',
           lastSeenTag: r.lastSeenTag,
           latest: r.latest,
           lastCheck: r.lastCheck
         })),
+        categories: state.categories,
         token: state.token,
         gistId: state.gistId,
         updatedAt: state.updatedAt,
@@ -458,7 +712,6 @@
         autoRefreshMinutes: state.autoRefreshMinutes
       }));
     }catch(e){ console.warn('保存失败', e); }
-
     if(opts.push !== false) schedulePush();
   }
 
@@ -470,14 +723,10 @@
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
-  /* 解析单条输入，返回 { fullName, note } 或 null
-     支持：owner/repo | 中文备注
-           https://github.com/owner/repo | 中文备注  */
   function parseRepo(input){
     if(!input) return null;
     let s = String(input).trim();
     if(!s) return null;
-
     let note = '';
     const i = s.search(/[|｜]/);
     if(i >= 0){
@@ -485,18 +734,15 @@
       s = s.slice(0, i).trim();
       if(!s) return null;
     }
-
     let m = s.match(/github\.com[/:]([^/\s?#]+)\/([^/\s?#]+)/i);
     if(m) return { fullName: (m[1] + '/' + m[2]).replace(/\.git$/i,''), note };
-
     m = s.match(/^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/);
     if(m) return { fullName: m[1] + '/' + m[2].replace(/\.git$/i,''), note };
-
     return null;
   }
 
   function relTime(ts){
-    const diff = Math.max(0, Date.now() - ts); // 防止本地时间慢于服务器导致负数
+    const diff = Math.max(0, Date.now() - ts);
     if(diff < 60000) return '刚刚';
     const m = Math.floor(diff / 60000);
     if(m < 60) return m + ' 分钟前';
@@ -549,8 +795,6 @@
     if(A.pre === B.pre) return 0;
     if(!A.pre) return 1;
     if(!B.pre) return -1;
-
-    // 分段比较 pre-release，解决 rc.10 > rc.2 的问题
     const partsA = A.pre.split(/[-_.]/);
     const partsB = B.pre.split(/[-_.]/);
     const len = Math.max(partsA.length, partsB.length);
@@ -583,7 +827,6 @@
     return String(v == null ? '' : v).replace(/[^\x20-\x7E\x80-\xFF]/g, '');
   }
 
-  /* 从输入框实时读取 Token（比只信 state.token 更可靠） */
   function currentToken(){
     const el = document.getElementById('tokenInput');
     const uiToken = el ? el.value.trim().replace(/[^\x21-\x7E]/g, '') : '';
@@ -591,24 +834,16 @@
   }
 
   async function ghFetch(path, init){
-    // 关键：每次请求前都从输入框读最新 Token，
-    // 避免 state.token 未同步（粘贴未失焦 / URL 参数时序等）导致请求退化为匿名访问
     const effectiveToken = currentToken();
     if(effectiveToken && effectiveToken !== state.token) state.token = effectiveToken;
-
     const headers = Object.assign(
       { 'Accept': 'application/vnd.github+json' },
       (init && init.headers) || {}
     );
     if(effectiveToken) headers['Authorization'] = 'Bearer ' + effectiveToken;
-
-    Object.keys(headers).forEach(k => {
-      headers[k] = cleanHeaderValue(headers[k]);
-    });
-
+    Object.keys(headers).forEach(k => { headers[k] = cleanHeaderValue(headers[k]); });
     const res = await fetch('https://api.github.com' + path,
       Object.assign({}, init, { headers }));
-
     const rem = res.headers.get('x-ratelimit-remaining');
     if(rem !== null){
       state.rate = {
@@ -674,7 +909,6 @@
       if(res.ok) return await res.json();
       if(res.status !== 404) throw new Error('HTTP ' + res.status);
     }
-
     const rt = await ghFetch(`/repos/${repo.fullName}/tags?per_page=1`);
     if(isRateLimited(rt)) throw new Error(rateMsg(rt));
     if(rt.status === 404) throw new Error('仓库不存在或不可访问');
@@ -693,19 +927,19 @@
     try{
       const release = await fetchLatestRelease(repo);
       repo.lastCheck = Date.now();
-
       if(release){
         repo.latest = normalizeRelease(release);
         const tag = repo.latest.tag;
-
         if(repo.lastSeenTag == null){
           repo.lastSeenTag = tag;
           repo.isNew = false;
           repo.isRollback = false;
+          repo.previousTag = null;
         }else{
           const c = compareVersions(tag, repo.lastSeenTag);
           repo.isNew = c > 0;
           repo.isRollback = c < 0;
+          repo.previousTag = (c !== 0) ? repo.lastSeenTag : null;
           if(c !== 0) repo.lastSeenTag = tag;
         }
         repo.error = null;
@@ -713,12 +947,12 @@
         repo.latest = null;
         repo.isNew = false;
         repo.isRollback = false;
+        repo.previousTag = null;
         repo.error = '没有找到 Release 或 Tag';
       }
     }catch(e){
       repo.lastCheck = Date.now();
       const msg = e.message || '请求失败';
-      // 优化网络错误提示
       repo.error = /Failed to fetch|NetworkError|Load failed/i.test(msg)
         ? '网络连接失败，请检查网络'
         : msg;
@@ -734,30 +968,26 @@
   async function refreshAll(){
     if(refreshing || !state.repos.length) return;
     refreshing = true;
-    const btn = document.getElementById('refreshAll');
+    const btn = document.getElementById('btnRefresh');
     btn.disabled = true;
-    btn.textContent = '⏳ 刷新中…';
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = '<span class="ic">⏳</span><span class="label-show">刷新中</span>';
     await Promise.all(state.repos.map(r => checkRepo(r)));
     refreshing = false;
     btn.disabled = false;
-    btn.textContent = '🔄 全部刷新';
-    document.getElementById('lastRefresh').textContent =
-      '最后刷新：' + nowTime();
+    btn.innerHTML = oldHtml;
+    document.getElementById('lastRefresh').textContent = nowTime();
     save();
     updateTitle();
+    const newCount = state.repos.filter(r => r.isNew).length;
+    if(newCount) toast(`🎉 发现 ${newCount} 个新版本`);
   }
 
-  /* ---------------- 云同步（私有 Gist） ---------------- */
+  /* ---------------- 云同步 ---------------- */
 
-  const sync = {
-    busy: false,
-    pushTimer: null,
-    lastAt: null
-  };
+  const sync = { busy: false, pushTimer: null, lastAt: null };
 
-  function syncReady(){
-    return !!(state.gistId && currentToken());
-  }
+  function syncReady(){ return !!(state.gistId && currentToken()); }
 
   function setSyncStatus(kind, text){
     const el = document.getElementById('syncStatus');
@@ -770,9 +1000,11 @@
       version: 1,
       updatedAt: state.updatedAt || 0,
       savedAt: new Date().toISOString(),
+      categories: state.categories,
       repos: state.repos.map(r => ({
         fullName: r.fullName,
         note: r.note || '',
+        category: r.category || '',
         lastSeenTag: r.lastSeenTag,
         latest: r.latest,
         lastCheck: r.lastCheck
@@ -781,15 +1013,20 @@
   }
 
   function applyRemote(remote){
+    state.categories = Array.isArray(remote.categories)
+      ? remote.categories.filter(c => typeof c === 'string' && c.trim()).slice(0, 60)
+      : [];
     state.repos = (remote.repos || []).map(r => ({
       fullName: r.fullName,
       note: r.note || '',
+      category: r.category || '',
       lastSeenTag: r.lastSeenTag ?? null,
       latest: r.latest || null,
       error: null,
       lastCheck: r.lastCheck || null,
       isNew: false,
       isRollback: false,
+      previousTag: null,
       checking: false
     }));
     state.updatedAt = remote.updatedAt || 0;
@@ -804,13 +1041,11 @@
     if(sync.busy) return { ok:false, error:'正在同步中' };
     sync.busy = true;
     setSyncStatus('busy', '⏳ 拉取中…');
-
     try{
       const res = await ghFetch('/gists/' + state.gistId);
       if(res.status === 404) throw new Error('Gist 不存在或 Token 无权限');
       if(res.status === 401) throw new Error('Token 无效或缺少 gist 权限');
       if(!res.ok) throw new Error('HTTP ' + res.status);
-
       const data = await res.json();
       const file = data.files && data.files[GIST_FILE];
       if(!file || !file.content){
@@ -818,26 +1053,21 @@
         sync.lastAt = Date.now();
         return { ok:true, applied:false };
       }
-
       let remote;
       try{ remote = JSON.parse(file.content); }
       catch(e){ throw new Error('云端数据格式异常'); }
-
       const remoteRepos = remote.repos || [];
       const localRepos = state.repos || [];
       const remoteAt = remote.updatedAt || 0;
       const localAt = state.updatedAt || 0;
 
-      // 云端为空但本地有数据：绝不覆盖本地，改为把本地推上去
       if(remoteRepos.length === 0 && localRepos.length > 0){
         setSyncStatus('busy', '⏳ 云端为空，正在上传本地数据…');
         try{
           const pr = await ghFetch('/gists/' + state.gistId, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              files: { [GIST_FILE]: { content: cloudPayload() } }
-            })
+            body: JSON.stringify({ files: { [GIST_FILE]: { content: cloudPayload() } } })
           });
           if(!pr.ok) throw new Error('HTTP ' + pr.status);
           setSyncStatus('ok', '✓ 云端为空，已上传本地 ' + nowTime());
@@ -852,13 +1082,11 @@
       if(remoteAt > localAt){
         applyRemote(remote);
         save({ touch:false, push:false });
-        render();
-        updateTitle();
+        render(); updateTitle();
         setSyncStatus('ok', '✓ 已从云端更新 ' + nowTime());
         sync.lastAt = Date.now();
         return { ok:true, applied:true };
       }
-
       setSyncStatus('ok', '✓ 本地已是最新 ' + nowTime());
       sync.lastAt = Date.now();
       return { ok:true, applied:false };
@@ -866,9 +1094,7 @@
       setSyncStatus('err', '⚠ ' + (e.message || '拉取失败'));
       if(!silent) toast('拉取失败：' + (e.message || ''));
       return { ok:false, error: e.message || '拉取失败' };
-    }finally{
-      sync.busy = false;
-    }
+    }finally{ sync.busy = false; }
   }
 
   async function cloudPush(silent){
@@ -879,19 +1105,15 @@
     if(sync.busy) return { ok:false, error:'正在同步中' };
     sync.busy = true;
     setSyncStatus('busy', '⏳ 推送中…');
-
     try{
       const res = await ghFetch('/gists/' + state.gistId, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          files: { [GIST_FILE]: { content: cloudPayload() } }
-        })
+        body: JSON.stringify({ files: { [GIST_FILE]: { content: cloudPayload() } } })
       });
       if(res.status === 404) throw new Error('Gist 不存在或 Token 无权限');
       if(res.status === 401) throw new Error('Token 无效或缺少 gist 权限');
       if(!res.ok) throw new Error('HTTP ' + res.status);
-
       setSyncStatus('ok', '✓ 已同步 ' + nowTime());
       sync.lastAt = Date.now();
       return { ok:true };
@@ -899,9 +1121,7 @@
       setSyncStatus('err', '⚠ ' + (e.message || '推送失败'));
       if(!silent) toast('推送失败：' + (e.message || ''));
       return { ok:false, error: e.message || '推送失败' };
-    }finally{
-      sync.busy = false;
-    }
+    }finally{ sync.busy = false; }
   }
 
   function schedulePush(){
@@ -919,12 +1139,8 @@
   }
 
   async function createGist(){
-    if(!currentToken()){
-      toast('请先填写带 gist 权限的 Token');
-      return;
-    }
+    if(!currentToken()){ toast('请先填写带 gist 权限的 Token'); return; }
     if(state.gistId && !confirm('已绑定 Gist，重新创建会生成一个新的，确定继续？')) return;
-
     setSyncStatus('busy', '⏳ 创建中…');
     try{
       const res = await ghFetch('/gists', {
@@ -938,7 +1154,6 @@
       });
       if(res.status === 401) throw new Error('Token 无效或缺少 gist 权限');
       if(!res.ok) throw new Error('HTTP ' + res.status);
-
       const data = await res.json();
       state.gistId = data.id;
       document.getElementById('gistInput').value = data.id;
@@ -951,6 +1166,105 @@
     }
   }
 
+  /* ---------------- 分类管理 ---------------- */
+
+  function addCategory(name){
+    const n = String(name || '').trim().slice(0, CAT_MAX);
+    if(!n){ toast('分类名不能为空'); return false; }
+    if(state.categories.includes(n)){ toast('分类「' + n + '」已存在'); return false; }
+    if(state.categories.length >= 60){ toast('分类数量已达上限'); return false; }
+    state.categories.push(n);
+    save(); render();
+    toast('已添加分类：' + n);
+    return true;
+  }
+
+  function deleteCategory(name){
+    if(!confirm(`删除分类「${name}」？\n该分类下的仓库会变为「未分类」，不会删除仓库。`)) return;
+    state.categories = state.categories.filter(c => c !== name);
+    let moved = 0;
+    state.repos.forEach(r => {
+      if(r.category === name){ r.category = ''; moved++; }
+    });
+    if(state.filterCategory === name) state.filterCategory = '__all__';
+    save(); render();
+    toast(moved ? `已删除分类，${moved} 个仓库移到「未分类」` : '已删除分类');
+  }
+
+  function renderCategoryChips(){
+    const el = document.getElementById('categoryChips');
+    if(!state.categories.length){
+      el.innerHTML = '<span class="cat-empty">还没有分类，点右侧「＋ 新建分类」添加</span>';
+      return;
+    }
+    el.innerHTML = state.categories.map(c => {
+      const count = state.repos.filter(r => r.category === c).length;
+      return `<span class="cat-chip">
+        <span class="cat-name">${esc(c)}</span>
+        <span class="cat-count">${count}</span>
+        <button type="button" class="cat-del" data-cat-del="${esc(c)}" title="删除分类">×</button>
+      </span>`;
+    }).join('');
+  }
+
+  function renderFilterSelect(){
+    const sel = document.getElementById('filterCategory');
+    if(!sel) return;
+    const cur = state.filterCategory || '__all__';
+    let html = `<option value="__all__">全部分类</option>`;
+    state.categories.forEach(c => {
+      const count = state.repos.filter(r => r.category === c).length;
+      html += `<option value="${esc(c)}"${cur === c ? ' selected' : ''}>${esc(c)} (${count})</option>`;
+    });
+    const unCount = state.repos.filter(r => !r.category).length;
+    if(unCount > 0){
+      html += `<option value="__none__"${cur === '__none__' ? ' selected' : ''}>未分类 (${unCount})</option>`;
+    }
+    sel.innerHTML = html;
+    if(cur !== '__all__' && cur !== '__none__' && !state.categories.includes(cur)){
+      state.filterCategory = '__all__';
+      sel.value = '__all__';
+    }
+  }
+
+  /* ---------------- 批量分类 ---------------- */
+
+  function renderBulk(){
+    const listEl = document.getElementById('bulkList');
+    const selEl = document.getElementById('bulkCategorySel');
+    const countEl = document.getElementById('bulkCount');
+    if(!listEl || !selEl || !countEl) return;
+
+    if(!state.repos.length){
+      listEl.innerHTML = '<div class="cat-empty">还没有仓库</div>';
+      countEl.textContent = '0';
+      selEl.innerHTML = '';
+      return;
+    }
+
+    const sorted = state.repos.slice().sort((a, b) => {
+      const ca = a.category || '\uffff';
+      const cb = b.category || '\uffff';
+      if(ca !== cb) return ca.localeCompare(cb);
+      return a.fullName.localeCompare(b.fullName);
+    });
+
+    listEl.innerHTML = sorted.map(r => {
+      const checked = state.bulkSelected[r.fullName] ? ' checked' : '';
+      const catTxt = r.category || '未分类';
+      return `<label class="bulk-item">
+        <input type="checkbox" data-bulk-name="${esc(r.fullName)}"${checked}>
+        <span class="bulk-name" title="${esc(r.fullName)}">${esc(r.fullName)}</span>
+        <span class="bulk-cat" title="${esc(catTxt)}">${esc(catTxt)}</span>
+      </label>`;
+    }).join('');
+
+    let opts = `<option value="">— 移到未分类 —</option>`;
+    state.categories.forEach(c => { opts += `<option value="${esc(c)}">${esc(c)}</option>`; });
+    selEl.innerHTML = opts;
+    countEl.textContent = String(Object.keys(state.bulkSelected).filter(k => state.bulkSelected[k]).length);
+  }
+
   /* ---------------- 备注编辑 ---------------- */
 
   function commitNote(editorEl){
@@ -960,11 +1274,9 @@
     if(!repo) return;
     const inp = editorEl.querySelector('.note-input');
     const val = String(inp ? inp.value : '').trim().slice(0, NOTE_MAX);
-
     repo.note = val;
     state.editingNote = null;
-    save();
-    render();
+    save(); render();
     toast(val ? '备注已保存' : '备注已清除');
   }
 
@@ -973,10 +1285,10 @@
   function renderRate(){
     const el = document.getElementById('rateInfo');
     if(state.rate && !isNaN(state.rate.remaining)){
-      const authed = state.rate.limit > 60; // 额度 > 60 基本就意味着 Token 生效了
+      const authed = state.rate.limit > 60;
       el.textContent =
-        `API 剩余额度：${state.rate.remaining}/${state.rate.limit}` +
-        (authed ? ' 🔑' : ' 👤(未登录)');
+        `API ${state.rate.remaining}/${state.rate.limit}` +
+        (authed ? ' 🔑' : ' 👤');
       el.style.color =
         state.rate.remaining < 10 ? 'var(--red)' :
         (authed ? 'var(--green)' : 'var(--yellow)');
@@ -988,6 +1300,12 @@
       el.style.color = '';
       el.title = '';
     }
+  }
+
+  function repoRank(r){
+    if(r.isNew) return 0;
+    if(r.isRollback) return 1;
+    return 2;
   }
 
   function cardHtml(repo){
@@ -1008,7 +1326,6 @@
       badge = '<span class="badge">—</span>';
     }
 
-    /* --- 备注区 --- */
     let noteHtml = '';
     if(state.editingNote === repo.fullName){
       noteHtml = `<div class="note-editor" data-repo="${esc(repo.fullName)}">
@@ -1023,6 +1340,17 @@
                        title="点击修改备注">${esc(repo.note)}</div>`;
     }
 
+    const curCat = repo.category || '';
+    let catOpts = `<option value=""${curCat === '' ? ' selected' : ''}>— 未分类 —</option>`;
+    state.categories.forEach(c => {
+      catOpts += `<option value="${esc(c)}"${curCat === c ? ' selected' : ''}>${esc(c)}</option>`;
+    });
+    const catRow = `<div class="cat-row" title="点击下拉框切换分类">
+        <span class="cat-label">🏷️</span>
+        <select class="cat-select${curCat ? '' : ' is-empty'}"
+                data-repo="${esc(repo.fullName)}">${catOpts}</select>
+      </div>`;
+
     const version = latest ? esc(latest.tag) : '—';
     const relName = (latest && latest.name && latest.name !== latest.tag)
       ? `<div class="rel-name">${esc(latest.name)}</div>` : '';
@@ -1033,8 +1361,9 @@
     metaParts.push('检查：' + (repo.lastCheck ? relTime(repo.lastCheck) : '未检查'));
     const meta = metaParts.join(' · ');
 
-    const hint = (repo.lastSeenTag && (repo.isNew || repo.isRollback))
-      ? `<div class="meta hint">记录中的版本：${esc(repo.lastSeenTag)}</div>` : '';
+    const hint = (repo.previousTag && (repo.isNew || repo.isRollback))
+      ? `<div class="meta hint">${repo.isNew ? '⬆ 上一版本' : '↩ 回退前'}：${esc(repo.previousTag)} → ${esc(latest ? latest.tag : '')}</div>`
+      : '';
 
     const assets = (latest && latest.assets && latest.assets.length)
       ? `<details class="assets">
@@ -1052,6 +1381,7 @@
             <a class="repo-name" href="https://github.com/${esc(repo.fullName)}"
                target="_blank" rel="noopener">${esc(repo.fullName)}</a>
             ${noteHtml}
+            ${catRow}
           </div>
           ${badge}
         </div>
@@ -1073,10 +1403,93 @@
   function render(){
     const list = document.getElementById('list');
     const empty = document.getElementById('empty');
-    empty.style.display = state.repos.length ? 'none' : 'block';
-    list.innerHTML = state.repos.map(cardHtml).join('');
+    const summary = document.getElementById('listSummary');
 
-    // 编辑态：自动聚焦备注输入框
+    renderCategoryChips();
+    renderFilterSelect();
+    if(state.openPanel === 'category') renderBulk();
+
+    // 更新顶部 badge
+    const newTotal = state.repos.filter(r => r.isNew).length;
+    const topBadge = document.getElementById('topNewBadge');
+    if(newTotal > 0){
+      topBadge.textContent = newTotal;
+      topBadge.style.display = '';
+    }else{
+      topBadge.style.display = 'none';
+    }
+
+    if(!state.repos.length){
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      summary.textContent = '还没有关注的仓库';
+      return;
+    }
+    empty.style.display = 'none';
+
+    // 概览
+    const total = state.repos.length;
+    const checked = state.repos.filter(r => r.lastCheck).length;
+    const newCount = state.repos.filter(r => r.isNew).length;
+    let sumText = `共 ${total} 个仓库`;
+    if(newCount > 0){
+      sumText += ` · <span class="num">${newCount} 个有新版本</span>`;
+    }else if(checked > 0){
+      sumText += ` · 暂无更新`;
+    }
+    summary.innerHTML = sumText;
+
+    const filter = state.filterCategory || '__all__';
+    const groups = new Map();
+    state.repos.forEach(r => {
+      const cat = r.category || '';
+      if(!groups.has(cat)) groups.set(cat, []);
+      groups.get(cat).push(r);
+    });
+
+    const orderedCats = [];
+    state.categories.forEach(c => { if(groups.has(c)) orderedCats.push(c); });
+    if(groups.has('')) orderedCats.push('');
+
+    let visibleCats = orderedCats;
+    if(filter === '__none__'){
+      visibleCats = orderedCats.filter(c => c === '');
+    }else if(filter !== '__all__'){
+      visibleCats = orderedCats.filter(c => c === filter);
+    }
+
+    if(!visibleCats.length){
+      list.innerHTML = '<div class="empty">当前分类下没有仓库</div>';
+      return;
+    }
+
+    let html = '';
+    visibleCats.forEach(cat => {
+      const repos = groups.get(cat).slice();
+      repos.sort((a, b) => (repoRank(a) - repoRank(b)) || a.fullName.localeCompare(b.fullName));
+
+      const catName = cat || '未分类';
+      const newCnt = repos.filter(r => r.isNew).length;
+      const headerCls = 'category-header' + (cat ? '' : ' is-uncat');
+      const newTip = newCnt
+        ? `<span class="cat-new-tip">🎉 ${newCnt} 个有新版本</span>`
+        : '';
+
+      html += `<section class="category-group">
+        <div class="${headerCls}">
+          <span class="cat-dot"></span>
+          <span class="cat-title">${esc(catName)}</span>
+          <span class="cat-total">${repos.length}</span>
+          ${newTip}
+        </div>
+        <div class="category-grid">
+          ${repos.map(cardHtml).join('')}
+        </div>
+      </section>`;
+    });
+
+    list.innerHTML = html;
+
     if(state.editingNote){
       const inp = list.querySelector('.note-input');
       if(inp){ try{ inp.focus(); }catch(e){} }
@@ -1088,6 +1501,44 @@
     document.title = (n ? `(${n}) ` : '') + 'GitHub Release 更新监控';
   }
 
+  /* ---------------- 面板切换 ---------------- */
+
+  function setPanel(name){
+    const panels = {
+      add: 'panelAdd',
+      category: 'panelCategory',
+      sync: 'panelSync',
+      settings: 'panelSettings'
+    };
+    const btns = {
+      add: 'btnAdd',
+      category: 'btnCategory',
+      sync: 'btnSync',
+      settings: 'btnSettings'
+    };
+
+    // 关闭所有，再打开目标
+    Object.keys(panels).forEach(k => {
+      const el = document.getElementById(panels[k]);
+      const btn = document.getElementById(btns[k]);
+      if(k === name && state.openPanel !== name){
+        el.style.display = '';
+        btn.classList.add('active');
+      }else{
+        el.style.display = 'none';
+        btn.classList.remove('active');
+      }
+    });
+
+    const wasOpen = state.openPanel === name;
+    state.openPanel = wasOpen ? null : name;
+
+    // 如果打开的是分类面板，刷新批量列表
+    if(state.openPanel === 'category'){
+      renderBulk();
+    }
+  }
+
   /* ---------------- 交互 ---------------- */
 
   document.getElementById('addForm').addEventListener('submit', function(e){
@@ -1095,7 +1546,6 @@
     const input = document.getElementById('repoInput');
     const raw = input.value;
 
-    // 按行拆分：含 “|” 的行整行解析（可带备注），其余行再按空白/逗号拆
     const candidates = [];
     String(raw).split(/\r?\n/).forEach(line => {
       const l = line.trim();
@@ -1114,12 +1564,10 @@
     candidates.forEach(t => {
       const p = parseRepo(t);
       if(!p){ invalid++; return; }
-
       const exist = state.repos.find(
         r => r.fullName.toLowerCase() === p.fullName.toLowerCase()
       );
       if(exist){
-        // 已存在：如果这次带了备注，就顺手更新
         if(p.note && p.note !== exist.note){
           exist.note = p.note.slice(0, NOTE_MAX);
           noteUpdated++;
@@ -1144,15 +1592,15 @@
     const newRepos = parsed.map(p => ({
       fullName: p.fullName,
       note: (p.note || '').slice(0, NOTE_MAX),
+      category: '',
       lastSeenTag: null, latest: null,
       error: null, lastCheck: null, checking: false,
-      isNew: false, isRollback: false
+      isNew: false, isRollback: false, previousTag: null
     }));
 
     state.repos = newRepos.concat(state.repos);
     input.value = '';
-    save();
-    render();
+    save(); render();
 
     toast(`已添加 ${newRepos.length} 个仓库${invalid ? `，忽略 ${invalid} 条无效输入` : ''}`);
     newRepos.forEach(r => checkRepo(r));
@@ -1160,33 +1608,44 @@
 
   const listEl = document.getElementById('list');
 
+  listEl.addEventListener('change', function(e){
+    const sel = e.target;
+    if(!sel.classList || !sel.classList.contains('cat-select')) return;
+    const repo = state.repos.find(r => r.fullName === sel.dataset.repo);
+    if(!repo) return;
+    const newCat = sel.value || '';
+    if(repo.category === newCat) return;
+    repo.category = newCat;
+    save(); render();
+    toast(newCat ? `已归入「${newCat}」` : '已移到「未分类」');
+  });
+
   listEl.addEventListener('click', async function(e){
-    // 点击备注文字 -> 进入编辑
     const noteEl = e.target.closest('.repo-note');
     if(noteEl && noteEl.dataset.repo){
       state.editingNote = noteEl.dataset.repo;
       render();
       return;
     }
-
     const btn = e.target.closest('button[data-action]');
     if(!btn) return;
     const repo = state.repos.find(r => r.fullName === btn.dataset.repo);
     if(!repo) return;
-
     const action = btn.dataset.action;
 
     if(action === 'check'){
       await checkRepo(repo);
-      document.getElementById('lastRefresh').textContent = '最后刷新：' + nowTime();
+      document.getElementById('lastRefresh').textContent = nowTime();
     }else if(action === 'remove'){
       state.repos = state.repos.filter(r => r !== repo);
       if(state.editingNote === repo.fullName) state.editingNote = null;
+      delete state.bulkSelected[repo.fullName];
       save(); render(); updateTitle();
       toast('已删除 ' + repo.fullName);
     }else if(action === 'read'){
       repo.isNew = false;
       repo.isRollback = false;
+      repo.previousTag = null;
       if(repo.latest) repo.lastSeenTag = repo.latest.tag;
       save(); render(); updateTitle();
     }else if(action === 'note'){
@@ -1200,7 +1659,6 @@
     }
   });
 
-  // 备注输入框键盘操作：Enter 保存，Esc 取消
   listEl.addEventListener('keydown', function(e){
     const inp = e.target;
     if(!inp.classList || !inp.classList.contains('note-input')) return;
@@ -1214,14 +1672,100 @@
     }
   });
 
-  document.getElementById('refreshAll').addEventListener('click', refreshAll);
+  /* ---------------- 顶部按钮 ---------------- */
+  document.getElementById('btnAdd').addEventListener('click', () => setPanel('add'));
+  document.getElementById('btnCategory').addEventListener('click', () => setPanel('category'));
+  document.getElementById('btnSync').addEventListener('click', () => setPanel('sync'));
+  document.getElementById('btnSettings').addEventListener('click', () => setPanel('settings'));
+  document.getElementById('btnRefresh').addEventListener('click', refreshAll);
 
+  /* ---------------- 分类管理区 ---------------- */
+  const chipsEl = document.getElementById('categoryChips');
+  const catAddRow = document.getElementById('catAddRow');
+  const catNewName = document.getElementById('catNewName');
+
+  chipsEl.addEventListener('click', function(e){
+    const del = e.target.closest('[data-cat-del]');
+    if(del){
+      e.stopPropagation();
+      deleteCategory(del.dataset.catDel);
+    }
+  });
+
+  document.getElementById('addCategoryBtn').addEventListener('click', function(){
+    catAddRow.style.display = 'flex';
+    catNewName.value = '';
+    try{ catNewName.focus(); }catch(e){}
+  });
+
+  document.getElementById('catAddCancel').addEventListener('click', function(){
+    catAddRow.style.display = 'none';
+    catNewName.value = '';
+  });
+
+  function confirmAddCategory(){
+    const ok = addCategory(catNewName.value);
+    if(ok){
+      catAddRow.style.display = 'none';
+      catNewName.value = '';
+    }
+  }
+
+  document.getElementById('catAddConfirm').addEventListener('click', confirmAddCategory);
+  catNewName.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); confirmAddCategory(); }
+    else if(e.key === 'Escape'){ e.preventDefault(); catAddRow.style.display = 'none'; catNewName.value = ''; }
+  });
+
+  /* ---------------- 批量分类 ---------------- */
+  const bulkListEl = document.getElementById('bulkList');
+
+  bulkListEl.addEventListener('change', function(e){
+    const cb = e.target;
+    if(!cb.matches || !cb.matches('input[type=checkbox][data-bulk-name]')) return;
+    const name = cb.dataset.bulkName;
+    if(cb.checked) state.bulkSelected[name] = true;
+    else delete state.bulkSelected[name];
+    document.getElementById('bulkCount').textContent =
+      String(Object.keys(state.bulkSelected).filter(k => state.bulkSelected[k]).length);
+  });
+
+  document.getElementById('bulkSelectAll').addEventListener('click', function(){
+    state.repos.forEach(r => { state.bulkSelected[r.fullName] = true; });
+    renderBulk();
+  });
+  document.getElementById('bulkSelectNone').addEventListener('click', function(){
+    state.bulkSelected = {};
+    renderBulk();
+  });
+  document.getElementById('bulkApply').addEventListener('click', function(){
+    const names = Object.keys(state.bulkSelected).filter(k => state.bulkSelected[k]);
+    if(!names.length){ toast('请先勾选要修改的仓库'); return; }
+    const target = document.getElementById('bulkCategorySel').value || '';
+    let changed = 0;
+    state.repos.forEach(r => {
+      if(names.indexOf(r.fullName) >= 0){
+        if(r.category !== target){
+          r.category = target;
+          changed++;
+        }
+      }
+    });
+    if(!changed){ toast('所选仓库已经是该分类了'); return; }
+    save(); render();
+    toast(target
+      ? `已把 ${changed} 个仓库归入「${target}」`
+      : `已把 ${changed} 个仓库移到「未分类」`);
+  });
+
+  /* ---------------- 列表工具栏 ---------------- */
   document.getElementById('markAllRead').addEventListener('click', function(){
     let n = 0;
     state.repos.forEach(r => {
       if(r.isNew){
         r.isNew = false;
         r.isRollback = false;
+        r.previousTag = null;
         if(r.latest) r.lastSeenTag = r.latest.tag;
         n++;
       }
@@ -1230,10 +1774,16 @@
     toast(n ? `已标记 ${n} 个仓库为已读` : '没有未读的新版本');
   });
 
+  document.getElementById('filterCategory').addEventListener('change', function(){
+    state.filterCategory = this.value || '__all__';
+    render();
+  });
+
   document.getElementById('includePrerelease').addEventListener('change', function(){
     state.includePrerelease = this.checked;
     state.repos.forEach(r => {
       r.lastSeenTag = null; r.isNew = false; r.isRollback = false;
+      r.previousTag = null;
     });
     save();
     if(state.repos.length) refreshAll();
@@ -1247,15 +1797,11 @@
     toast(state.autoRefreshMinutes ? `已开启自动刷新：每 ${state.autoRefreshMinutes} 分钟` : '已关闭自动刷新');
   });
 
-  /* -------- Token 输入：实时同步 state，失焦时保存并刷新 -------- */
+  /* -------- Token 输入 -------- */
   const tokenEl = document.getElementById('tokenInput');
-
-  // 每次输入都同步到 state（不触发 save，避免频繁写入和推送）
   tokenEl.addEventListener('input', function(){
     state.token = this.value.trim().replace(/[^\x21-\x7E]/g, '');
   });
-
-  // 失焦 / 回车时正式保存，并按需刷新
   tokenEl.addEventListener('change', function(){
     const t = this.value.trim().replace(/[^\x21-\x7E]/g, '');
     this.value = t;
@@ -1277,7 +1823,6 @@
 
   document.getElementById('gistCreate').addEventListener('click', createGist);
   document.getElementById('gistPull').addEventListener('click', () => cloudPull(false));
-
   document.getElementById('gistPush').addEventListener('click', () => {
     if(!state.repos.length && state.gistId){
       if(!confirm('本地列表为空，推送会用空数据覆盖云端，确定继续？')) return;
@@ -1286,7 +1831,6 @@
   });
 
   /* ---------------- 定时器 ---------------- */
-
   let timer = null;
   function setupTimer(){
     clearInterval(timer);
@@ -1296,7 +1840,6 @@
   }
 
   /* ---------------- URL 快速配置 ---------------- */
-
   function applyUrlConfig(){
     const h = location.hash.replace(/^#/, '');
     if(!h) return;
@@ -1312,7 +1855,6 @@
   }
 
   /* ---------------- 启动 ---------------- */
-
   async function init(){
     load();
     applyUrlConfig();
