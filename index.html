@@ -406,6 +406,7 @@
     line-height:1.45;
   }
   .row-time .t-main{color:var(--text);font-size:12px;font-weight:500}
+  .row-time .t-main.is-recent{color:#56d364;font-weight:700}
   .row-time .t-sub{font-size:10.5px;color:var(--muted)}
 
   /* 操作按钮 */
@@ -730,6 +731,7 @@
   const GIST_FILE   = 'gh-release-watcher.json';
   const NOTE_MAX    = 40;
   const CAT_MAX     = 12;
+  const RECENT_PUB_MS = 7 * 24 * 3600 * 1000;   // 7 天内发布的版本视为“最近更新”
 
   const state = {
     repos: [],
@@ -1409,10 +1411,42 @@
     }
   }
 
-  function repoRank(r){
-    if(r.isNew) return 0;
-    if(r.isRollback) return 1;
-    return 2;
+  /* ---- 动态排序：有新版本 > 最近发布 > 较旧发布 > 无数据 ----
+     时间以「最新 Release 的发布时间」为准，
+     这样新发布的版本会自动跳到最上面，越旧越往下沉。 */
+  function isRecentPub(iso){
+    if(!iso) return false;
+    const t = new Date(iso).getTime();
+    return !isNaN(t) && (Date.now() - t) < RECENT_PUB_MS;
+  }
+
+  function sortWeight(r){
+    // tier 越小越靠前
+    // 0: 有新版本 / 版本回退（需要立即关注）
+    // 1: 有发布时间，按发布时间倒序
+    // 2: 有 latest 但没 publishedAt（例如从 tag 推断）
+    // 3: 没有数据（加载中或错误）
+    if(r.isNew || r.isRollback){
+      const ts = (r.latest && r.latest.publishedAt)
+        ? new Date(r.latest.publishedAt).getTime()
+        : (r.lastCheck || 0);
+      return { tier: 0, ts: isNaN(ts) ? 0 : ts };
+    }
+    if(r.latest && r.latest.publishedAt){
+      const ts = new Date(r.latest.publishedAt).getTime();
+      return { tier: 1, ts: isNaN(ts) ? 0 : ts };
+    }
+    if(r.latest){
+      return { tier: 2, ts: r.lastCheck || 0 };
+    }
+    return { tier: 3, ts: r.lastCheck || 0 };
+  }
+
+  function compareRepos(a, b){
+    const wa = sortWeight(a), wb = sortWeight(b);
+    if(wa.tier !== wb.tier) return wa.tier - wb.tier;
+    if(wb.ts !== wa.ts) return wb.ts - wa.ts;   // 时间戳越大（越新）越靠前
+    return a.fullName.localeCompare(b.fullName);
   }
 
   /* ---- 单个仓库 → 列表行 ---- */
@@ -1481,8 +1515,9 @@
       ? '上次更新：' + fmtDate(prevIso) + (repo.previousTag ? '（' + repo.previousTag + '）' : '')
       : '';
 
+    const recentCls = isRecentPub(pubIso) ? ' is-recent' : '';
     const timeHtml = `<div class="row-time">
-      <span class="t-main" title="${esc(updTitle)}">${esc(updText)}</span>
+      <span class="t-main${recentCls}" title="${esc(updTitle)}">${esc(updText)}</span>
       ${prevTs ? `<span class="t-sub" title="${esc(prevTitle)}">上次 ${esc(prevText)}</span>` : ''}
     </div>`;
 
@@ -1607,7 +1642,8 @@
     let html = '';
     visibleCats.forEach(cat => {
       const repos = groups.get(cat).slice();
-      repos.sort((a, b) => (repoRank(a) - repoRank(b)) || a.fullName.localeCompare(b.fullName));
+      // 动态排序：有新版本的最前，然后按发布时间从新到旧
+      repos.sort(compareRepos);
 
       const catName = cat || '未分类';
       const newCnt = repos.filter(r => r.isNew).length;
