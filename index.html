@@ -395,13 +395,18 @@
     white-space:nowrap;
   }
 
-  /* 检查时间 */
+  /* 更新时间：最近一次 / 上一次 */
   .row-time{
     flex:0 0 auto;
-    font-size:12px;color:var(--muted);
+    display:flex;flex-direction:column;align-items:flex-end;
+    gap:1px;
+    font-size:11.5px;color:var(--muted);
     white-space:nowrap;
-    min-width:56px;text-align:right;
+    min-width:72px;text-align:right;
+    line-height:1.45;
   }
+  .row-time .t-main{color:var(--text);font-size:12px;font-weight:500}
+  .row-time .t-sub{font-size:10.5px;color:var(--muted)}
 
   /* 操作按钮 */
   .row-actions{
@@ -759,7 +764,8 @@
         lastCheck: r.lastCheck || null,
         isNew: false,
         isRollback: false,
-        previousTag: null,
+        previousTag: r.previousTag || null,
+        previousPublishedAt: r.previousPublishedAt || null,
         checking: false
       }));
       state.categories = Array.isArray(d.categories)
@@ -784,7 +790,9 @@
           category: r.category || '',
           lastSeenTag: r.lastSeenTag,
           latest: r.latest,
-          lastCheck: r.lastCheck
+          lastCheck: r.lastCheck,
+          previousTag: r.previousTag || null,
+          previousPublishedAt: r.previousPublishedAt || null
         })),
         categories: state.categories,
         token: state.token,
@@ -1007,6 +1015,7 @@
     render();
 
     try{
+      const prevLatest = repo.latest;          // 记录上一轮的版本信息
       const release = await fetchLatestRelease(repo);
       repo.lastCheck = Date.now();
       if(release){
@@ -1017,12 +1026,20 @@
           repo.isNew = false;
           repo.isRollback = false;
           repo.previousTag = null;
+          repo.previousPublishedAt = null;
         }else{
           const c = compareVersions(tag, repo.lastSeenTag);
           repo.isNew = c > 0;
           repo.isRollback = c < 0;
-          repo.previousTag = (c !== 0) ? repo.lastSeenTag : null;
-          if(c !== 0) repo.lastSeenTag = tag;
+          if(c !== 0){
+            repo.previousTag = repo.lastSeenTag;
+            // 只有当上一轮记录的最新版正好是 lastSeenTag 时，才拿得到它的发布时间
+            repo.previousPublishedAt =
+              (prevLatest && prevLatest.tag === repo.lastSeenTag && prevLatest.publishedAt)
+                ? prevLatest.publishedAt
+                : null;
+            repo.lastSeenTag = tag;
+          }
         }
         repo.error = null;
       }else{
@@ -1030,6 +1047,7 @@
         repo.isNew = false;
         repo.isRollback = false;
         repo.previousTag = null;
+        repo.previousPublishedAt = null;
         repo.error = '没有找到 Release 或 Tag';
       }
     }catch(e){
@@ -1089,7 +1107,9 @@
         category: r.category || '',
         lastSeenTag: r.lastSeenTag,
         latest: r.latest,
-        lastCheck: r.lastCheck
+        lastCheck: r.lastCheck,
+        previousTag: r.previousTag || null,
+        previousPublishedAt: r.previousPublishedAt || null
       }))
     }, null, 2);
   }
@@ -1108,7 +1128,8 @@
       lastCheck: r.lastCheck || null,
       isNew: false,
       isRollback: false,
-      previousTag: null,
+      previousTag: r.previousTag || null,
+      previousPublishedAt: r.previousPublishedAt || null,
       checking: false
     }));
     state.updatedAt = remote.updatedAt || 0;
@@ -1439,8 +1460,27 @@
       ? `<span class="ver-hint">${repo.isNew ? '↑' : '↓'} ${esc(repo.previousTag)}</span>`
       : '';
 
-    /* 检查时间 */
-    const time = repo.lastCheck ? relTime(repo.lastCheck) : '—';
+    /* 更新时间：最近一次 / 上一次 */
+    const pubIso = (latest && latest.publishedAt) ? latest.publishedAt : null;
+    const pubTs  = pubIso ? new Date(pubIso).getTime() : null;
+    const updText = pubTs
+      ? relTime(pubTs)
+      : (repo.lastCheck ? relTime(repo.lastCheck) : '—');
+    const updTitle = pubTs
+      ? '最近更新：' + fmtDate(pubIso)
+      : (repo.lastCheck ? '最近检查：' + fmtDate(new Date(repo.lastCheck)) : '暂无更新时间');
+
+    const prevIso = repo.previousPublishedAt || null;
+    const prevTs  = prevIso ? new Date(prevIso).getTime() : null;
+    const prevText = prevTs ? relTime(prevTs) : '';
+    const prevTitle = prevTs
+      ? '上次更新：' + fmtDate(prevIso) + (repo.previousTag ? '（' + repo.previousTag + '）' : '')
+      : '';
+
+    const timeHtml = `<div class="row-time">
+      <span class="t-main" title="${esc(updTitle)}">${esc(updText)}</span>
+      ${prevTs ? `<span class="t-sub" title="${esc(prevTitle)}">上次 ${esc(prevText)}</span>` : ''}
+    </div>`;
 
     /* 资源列表 */
     const assetCount = (latest && latest.assets) ? latest.assets.length : 0;
@@ -1467,8 +1507,9 @@
     const titleParts = [repo.fullName];
     if(repo.note) titleParts.push('备注：' + repo.note);
     if(latest) titleParts.push('版本：' + latest.tag);
-    if(latest && latest.publishedAt) titleParts.push('发布：' + fmtDate(latest.publishedAt));
-    if(repo.lastCheck) titleParts.push('检查：' + relTime(repo.lastCheck));
+    if(pubTs) titleParts.push('最近更新：' + fmtDate(pubIso));
+    if(prevTs) titleParts.push('上次更新：' + fmtDate(prevIso));
+    if(repo.lastCheck) titleParts.push('检查于：' + fmtDate(new Date(repo.lastCheck)));
     if(repo.error) titleParts.push('错误：' + repo.error);
     const fullTitle = titleParts.join('\n');
 
@@ -1485,7 +1526,7 @@
         <span class="version">${version}</span>
         ${verHint}
       </div>
-      <div class="row-time">${time}</div>
+      ${timeHtml}
       <div class="row-actions">
         ${viewBtn}
         ${assetsBtn}
@@ -1680,7 +1721,8 @@
       category: '',
       lastSeenTag: null, latest: null,
       error: null, lastCheck: null, checking: false,
-      isNew: false, isRollback: false, previousTag: null
+      isNew: false, isRollback: false, previousTag: null,
+      previousPublishedAt: null
     }));
 
     state.repos = newRepos.concat(state.repos);
@@ -1734,7 +1776,6 @@
     }else if(action === 'read'){
       repo.isNew = false;
       repo.isRollback = false;
-      repo.previousTag = null;
       if(repo.latest) repo.lastSeenTag = repo.latest.tag;
       save(); render(); updateTitle();
     }else if(action === 'note'){
@@ -1855,7 +1896,6 @@
       if(r.isNew){
         r.isNew = false;
         r.isRollback = false;
-        r.previousTag = null;
         if(r.latest) r.lastSeenTag = r.latest.tag;
         n++;
       }
@@ -1873,7 +1913,7 @@
     state.includePrerelease = this.checked;
     state.repos.forEach(r => {
       r.lastSeenTag = null; r.isNew = false; r.isRollback = false;
-      r.previousTag = null;
+      r.previousTag = null; r.previousPublishedAt = null;
     });
     save();
     if(state.repos.length) refreshAll();
