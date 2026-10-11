@@ -1182,7 +1182,11 @@
         }
       }
 
-      if(remoteAt > localAt){
+      // 本地没有数据时，无论时间戳如何，一律以云端为准
+      const localEmpty = localRepos.length === 0;
+      const remoteHas  = remoteRepos.length > 0;
+
+      if(remoteAt > localAt || (localEmpty && remoteHas)){
         applyRemote(remote);
         save({ touch:false, push:false });
         render(); updateTitle();
@@ -1932,23 +1936,32 @@
   tokenEl.addEventListener('input', function(){
     state.token = this.value.trim().replace(/[^\x21-\x7E]/g, '');
   });
-  tokenEl.addEventListener('change', function(){
+  tokenEl.addEventListener('change', async function(){
     const t = this.value.trim().replace(/[^\x21-\x7E]/g, '');
     this.value = t;
     state.token = t;
-    save();
+    // 关键：Token 只是凭据，不是数据变更，不能刷新 updatedAt
+    save({ touch: false });
     if(t && !/^(gh[pousr]_|github_pat_)/.test(t)){
       toast('Token 格式看起来不对，应以 ghp_ 或 github_pat_ 开头');
     }else{
       toast(t ? 'Token 已保存，正在刷新…' : 'Token 已清空');
     }
+    // 本地没有仓库但配置了 Gist → 说明是新设备，自动拉取一次
+    if(t && state.gistId && !state.repos.length){
+      await cloudPull(true);
+    }
     if(state.repos.length) refreshAll();
   });
 
-  document.getElementById('gistInput').addEventListener('change', function(){
+  document.getElementById('gistInput').addEventListener('change', async function(){
     state.gistId = this.value.trim();
     save({ touch:false });
     setSyncStatus('', state.gistId ? '已绑定 ' + state.gistId.slice(0,8) + '…' : '');
+    // 如果 Token 已填、本地又没数据，立刻拉一次
+    if(state.gistId && currentToken() && !state.repos.length){
+      await cloudPull(true);
+    }
   });
   document.getElementById('gistCreate').addEventListener('click', createGist);
   document.getElementById('gistPull').addEventListener('click', () => cloudPull(false));
